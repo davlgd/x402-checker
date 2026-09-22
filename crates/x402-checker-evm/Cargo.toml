@@ -1,0 +1,27 @@
+[package]
+name = "x402-checker-evm"
+description = "x402 exact scheme on EVM networks: EIP-3009 authorizations signed with EIP-712, nonces, signer recovery"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+
+[dependencies]
+alloy-primitives.workspace = true
+alloy-signer.workspace = true
+alloy-signer-local.workspace = true
+alloy-sol-types.workspace = true
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+x402-checker-types.workspace = true
+
+[lints]
+workspace = true

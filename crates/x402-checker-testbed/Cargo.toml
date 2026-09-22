@@ -1,0 +1,30 @@
+[package]
+name = "x402-checker-testbed"
+description = "Test doubles for x402 v2 resource servers: a scripted facilitator and a witness backend that record every call"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+
+[dependencies]
+axum.workspace = true
+base64.workspace = true
+jiff.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+x402-checker-types.workspace = true
+
+[dev-dependencies]
+reqwest.workspace = true
+
+[lints]
+workspace = true

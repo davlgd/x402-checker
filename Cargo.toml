@@ -1,0 +1,61 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98"
+license = "Apache-2.0"
+repository = "https://github.com/davlgd/x402-checker"
+homepage = "https://github.com/davlgd/x402-checker"
+authors = ["davlgd"]
+keywords = ["x402", "payments", "http-402", "conformance", "testing"]
+categories = ["command-line-utilities", "development-tools::testing", "web-programming"]
+
+[workspace.dependencies]
+x402-checker-types = { path = "crates/x402-checker-types", version = "0.1.0" }
+x402-checker-evm = { path = "crates/x402-checker-evm", version = "0.1.0" }
+x402-checker-testbed = { path = "crates/x402-checker-testbed", version = "0.1.0" }
+x402-checker-ledger = { path = "crates/x402-checker-ledger", version = "0.1.0" }
+
+alloy-primitives = { version = "1.7", features = ["k256", "rand", "serde"] }
+alloy-signer = { version = "2.4", features = ["eip712"] }
+alloy-signer-local = { version = "2.4", features = ["eip712"] }
+alloy-sol-types = "1.7"
+anyhow = "1.0"
+assert_cmd = "2.2"
+axum = { version = "0.8", features = ["macros"] }
+base64 = "0.23"
+clap = { version = "4.6", features = ["derive", "env", "wrap_help"] }
+jiff = { version = "0.2", features = ["serde"] }
+jsonschema = { version = "0.56", default-features = false }
+owo-colors = { version = "4.4", features = ["supports-colors"] }
+predicates = "3.1"
+rand = "0.10"
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "json", "http2"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = ["preserve_order"] }
+thiserror = "2.0"
+tokio = { version = "1.53", features = ["macros", "rt-multi-thread", "net", "time", "sync", "signal"] }
+tracing = "0.1"
+url = { version = "2.5", features = ["serde"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+unreachable_pub = "warn"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+missing_errors_doc = "allow"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true
+panic = "abort"
+opt-level = 3

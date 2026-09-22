@@ -1,0 +1,20 @@
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+yanked = "deny"
+# paste is a proc-macro helper of alloy-sol-macro: compile-time only, no code of it ships in the binary
+ignore = [{ id = "RUSTSEC-2024-0436", reason = "unmaintained proc-macro dependency of alloy-sol-macro, compile time only" }]
+
+[licenses]
+version = 2
+allow = ["Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause", "ISC", "Unicode-3.0", "Zlib", "CC0-1.0", "MPL-2.0", "0BSD", "OpenSSL", "Unlicense", "MIT-0", "CDLA-Permissive-2.0"]
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

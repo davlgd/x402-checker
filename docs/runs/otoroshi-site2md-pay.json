@@ -1,0 +1,968 @@
+{
+  "schema_version": 1,
+  "tool": "x402-conformance 0.1.0",
+  "spec_commit": "59f1347a1a0828af6c9eb9c01298338d3eff3053",
+  "target": "https://site2md.cleverapps.io/https://example.com",
+  "started_at": "2026-09-21T20:41:11.087844Z",
+  "finished_at": "2026-09-21T20:41:15.658574Z",
+  "scope": [
+    "pay"
+  ],
+  "omitted": [],
+  "strict": false,
+  "suites": [
+    {
+      "name": "pay",
+      "findings": [
+        {
+          "check": {
+            "id": "PAY-OFFER",
+            "title": "the offer the tool pays",
+            "level": "optional",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 6.1: clients prefer the authorization flow; schemes/exact/scheme_exact_evm.md: eip3009 is the default method",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "accepts[0]: 10000 atomic units of 0x036CbD53842c5426634e7929541eC2318f3dCF7e on eip155:84532 to 0x209693Bc6afc0C5328bA36FaF03C514EF312287C, paid by 0x8621a1F258194f55fa11Eb5591DDaB439a18a677",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-013",
+            "title": "a valid payment is answered with status 200 and the resource",
+            "level": "required",
+            "source": "field-table",
+            "clause": "transports-v2/http.md, Error Handling: \"Success | 200 | Payment verified and settled successfully\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 200, 197 bytes of text/plain; charset=UTF-8",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-005",
+            "title": "the paid response carries a PAYMENT-RESPONSE header",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md, Settlement Response Delivery: \"Servers communicate payment settlement results using the PAYMENT-RESPONSE header\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "header present",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-031",
+            "title": "the receipt has success (boolean), transaction (string) and network (string)",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.3.2: success Required boolean, transaction Required string, network Required string",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "receipt: {\"success\":true,\"transaction\":\"0xa946d33fbfe390e5ee31f5b3f8c816c97dedaa608c089298fdfce6a9ab7c5c53\",\"network\":\"eip155:84532\",\"payer\":\"0x8621a1F258194f55fa11Eb5591DDaB439a18a677\"}",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-013r",
+            "title": "a 200 carries a receipt with success true",
+            "level": "required",
+            "source": "field-table",
+            "clause": "transports-v2/http.md, Error Handling: 200 means \"Payment verified and settled successfully\"; Payment Failed is 402",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "success = true",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-034",
+            "title": "a successful receipt has no errorReason and a non-empty transaction",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.3.2: errorReason \"omitted if successful\"; transaction \"empty string if no transaction was broadcast\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "transaction \"0xa946d33fbfe390e5ee31f5b3f8c816c97dedaa608c089298fdfce6a9ab7c5c53\", errorReason None",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-033",
+            "title": "the receipt's network is the network of the accepted offer",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.3.2: network, \"Blockchain network identifier in CAIP-2 format\"",
+            "ambiguity": "the spec does not state the equality in so many words; a receipt naming another network than the one paid on would be meaningless"
+          },
+          "verdict": "pass",
+          "detail": "receipt network eip155:84532, paid on eip155:84532",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-035",
+            "title": "the receipt's payer, when present, is the paying wallet",
+            "level": "optional",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.3.2: payer Optional, \"Address of the payer's wallet\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "payer 0x8621a1F258194f55fa11Eb5591DDaB439a18a677",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "LEDGER-RPC",
+            "title": "the node the tool read",
+            "level": "optional",
+            "source": "policy",
+            "clause": "extensions/offer-receipt 5.5: \"verifiers MAY check the blockchain to confirm the transaction exists and matches expected parameters\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "eip155:84532 read through https://sepolia.base.org/",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "LEDGER-TX",
+            "title": "the receipt's transaction is included on the paid network and succeeded",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.3.2: success \"Whether the settlement succeeded\", transaction \"Blockchain transaction hash\"",
+            "ambiguity": "a chain that contradicts the receipt is not attributed: the server relays its facilitator's word and, from outside, nothing says which of them named the transaction. One node's receipt describes a mined block, not a final one"
+          },
+          "verdict": "pass",
+          "detail": "included in block 47127493 (0xfef2c2b03ca99f6cd6da2f24da96485b1fcb231b0e257abe68648d593e2a1e9e), status 1, submitted by 0xd407e409E34E0b9afb99EcCeb609bDbcD5e7f1bf, as seen by https://sepolia.base.org/ at 2026-09-21T20:41:15Z; sealed, finality not assessed",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "EXACT-017",
+            "title": "the transaction carries exactly one transfer of amount of asset from the payer to payTo",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "schemes/exact/scheme_exact.md: \"settlement MUST produce exactly one identifiable transfer of amount of asset to payTo. Operations incidental to that transfer ... do not disqualify it\"",
+            "ambiguity": "judged on the Transfer events the asset emitted in this transaction, not on balances; several identical transfers (a batch) leave the binding ambiguous and are reported as not assessable, not as a double charge"
+          },
+          "verdict": "pass",
+          "detail": "one Transfer of 10000 from 0x8621a1F258194f55fa11Eb5591DDaB439a18a677 to 0x209693Bc6afc0C5328bA36FaF03C514EF312287C by 0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "EVM-006",
+            "title": "the asset recorded the tool's authorization as used (AuthorizationUsed with the payer and the nonce)",
+            "level": "required",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_evm.md: \"the Facilitator cannot modify the amount or destination. They serve only as the transaction broadcaster\"; EIP-3009 (spec/external): \"event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce)\"",
+            "ambiguity": "an asset that emits no EIP-3009 event leaves the binding unestablished: reported as not assessable, since the core text does not require the event"
+          },
+          "verdict": "pass",
+          "detail": "AuthorizationUsed(0x8621a1F258194f55fa11Eb5591DDaB439a18a677, 0x7ac6b013570b5e115a072b15874de869e89e008b090ef7d2bdb86c57a260203e) emitted by 0x036CbD53842c5426634e7929541eC2318f3dCF7e in this transaction",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-072",
+            "title": "replaying the same PAYMENT-SIGNATURE does not settle a second time",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 10.1: \"unique 32-byte nonce to prevent replay attacks\"; schemes/exact/scheme_exact.md: \"A consumed primitive MUST produce a settlement failure, never a success\"",
+            "ambiguity": "the spec fixes no status for a replay; delivering the cached resource again is allowed. The tool fails only on a second success receipt with another transaction"
+          },
+          "verdict": "pass",
+          "detail": "status 409, the original receipt came back (same transaction)",
+          "evidence": [
+            1,
+            2
+          ]
+        },
+        {
+          "check": {
+            "id": "EXACT-017v",
+            "title": "an authorization whose value differs from amount is refused",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "schemes/exact/scheme_exact.md: \"exactly one identifiable transfer of amount\"; scheme_exact_evm.md phase 2: \"Verify the authorization parameters (Amount ...) meet the PaymentRequirements\"",
+            "ambiguity": null
+          },
+          "verdict": "skip",
+          "detail": "not sent: this authorization would be spendable by whoever sees it; pass --spendable-negatives with a test wallet, or run the scenarios suite",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "EXACT-017r",
+            "title": "an authorization whose recipient differs from payTo is refused",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "schemes/exact/scheme_exact.md: \"transfer ... to payTo\"; x402-specification-v2.md 9: invalid_exact_evm_payload_recipient_mismatch",
+            "ambiguity": null
+          },
+          "verdict": "skip",
+          "detail": "not sent: this authorization would be spendable by whoever sees it; pass --spendable-negatives with a test wallet, or run the scenarios suite",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "CORE-073",
+            "title": "an expired authorization (validBefore in the past) is refused",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 10.1: \"Authorizations have explicit valid time windows\"; 9: invalid_exact_evm_payload_authorization_valid_before",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402, reason invalid_exact_evm_payload_authorization_valid_before; the signature covers the altered parameters",
+          "evidence": [
+            3
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-073a",
+            "title": "an authorization that is not yet valid (validAfter in the future) is refused",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 10.1: time windows; 9: invalid_exact_evm_payload_authorization_valid_after",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402, reason invalid_exact_evm_payload_authorization_valid_after; the signature covers the altered parameters",
+          "evidence": [
+            4
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-070p",
+            "title": "error reasons given on refused payments",
+            "level": "optional",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 9: standard codes \"may be returned by facilitators or resource servers\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "expired authorization: invalid_exact_evm_payload_authorization_valid_before (standard); not yet valid authorization: invalid_exact_evm_payload_authorization_valid_after (standard)",
+          "evidence": []
+        }
+      ],
+      "traces": [],
+      "ledger": [
+        {
+          "node": "https://sepolia.base.org/",
+          "observed_at": "2026-09-21T20:41:15Z",
+          "chain_id": 84532,
+          "state": "sealed",
+          "receipt": {
+            "transactionHash": "0xa946d33fbfe390e5ee31f5b3f8c816c97dedaa608c089298fdfce6a9ab7c5c53",
+            "status": "0x1",
+            "blockNumber": "0x2cf1bc5",
+            "blockHash": "0xfef2c2b03ca99f6cd6da2f24da96485b1fcb231b0e257abe68648d593e2a1e9e",
+            "from": "0xd407e409e34e0b9afb99ecceb609bdbcd5e7f1bf",
+            "to": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+            "logs": [
+              {
+                "address": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+                "topics": [
+                  "0x98de503528ee59b575ef0c0a2576a82497bfc029a5685b209e9ec333479b10a5",
+                  "0x0000000000000000000000008621a1f258194f55fa11eb5591ddab439a18a677",
+                  "0x7ac6b013570b5e115a072b15874de869e89e008b090ef7d2bdb86c57a260203e"
+                ],
+                "data": "0x",
+                "logIndex": "0x8"
+              },
+              {
+                "address": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+                "topics": [
+                  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                  "0x0000000000000000000000008621a1f258194f55fa11eb5591ddab439a18a677",
+                  "0x000000000000000000000000209693bc6afc0c5328ba36faf03c514ef312287c"
+                ],
+                "data": "0x0000000000000000000000000000000000000000000000000000000000002710",
+                "logIndex": "0x9"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "exchanges": [
+    {
+      "seq": 1,
+      "label": "unpaid request for the terms",
+      "method": "GET",
+      "url": "https://site2md.cleverapps.io/https://example.com",
+      "request_headers": {},
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Session",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "531",
+        "content-type": "application/json",
+        "date": "Mon, 21 Sep 2026 20:41:10 GMT",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsImRlc2NyaXB0aW9uIjoiQ29udmVydCBhIHdlYiBwYWdlIHRvIE1hcmtkb3duIG9yIEpTT04iLCJtaW1lVHlwZSI6InRleHQvbWFya2Rvd24iLCJzZXJ2aWNlTmFtZSI6InNpdGUybWQiLCJ0YWdzIjpbIm1hcmtkb3duIiwic2NyYXBpbmciXX0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoic2l0ZTJtZC5jbGV2ZXJhcHBzLmlvIiwidXJpIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsInZlcnNpb24iOiIxIiwibm9uY2UiOiI4NWQwYzgxZGYyNzAzYzAzZjM3MjVhZDMzZGIwZTMwNyIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMVQyMDo0MToxMS4xOTlaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIxVDIwOjQ2OjExLjE5OVoiLCJyZXNvdXJjZXMiOlsiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSJdLCJzdGF0ZW1lbnQiOiJVc2UgbXkgcHJlcGFpZCBzaXRlMm1kIHBhc3MuIn0sInN1cHBvcnRlZENoYWlucyI6W3siY2hhaW5JZCI6ImVpcDE1NTo4NDUzMiIsInR5cGUiOiJlaXAxOTEifV0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicmVxdWlyZWQiOlsiZG9tYWluIiwiYWRkcmVzcyIsInVyaSIsInZlcnNpb24iLCJjaGFpbklkIiwidHlwZSIsIm5vbmNlIiwiaXNzdWVkQXQiLCJzaWduYXR1cmUiXSwicHJvcGVydGllcyI6eyJkb21haW4iOnsidHlwZSI6InN0cmluZyJ9LCJhZGRyZXNzIjp7InR5cGUiOiJzdHJpbmcifSwic3RhdGVtZW50Ijp7InR5cGUiOiJzdHJpbmcifSwidXJpIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwidmVyc2lvbiI6eyJ0eXBlIjoic3RyaW5nIn0sImNoYWluSWQiOnsidHlwZSI6InN0cmluZyJ9LCJ0eXBlIjp7InR5cGUiOiJzdHJpbmcifSwibm9uY2UiOnsidHlwZSI6InN0cmluZyJ9LCJpc3N1ZWRBdCI6eyJ0eXBlIjoic3RyaW5nIiwiZm9ybWF0IjoiZGF0ZS10aW1lIn0sImV4cGlyYXRpb25UaW1lIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwibm90QmVmb3JlIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwicmVxdWVzdElkIjp7InR5cGUiOiJzdHJpbmcifSwicmVzb3VyY2VzIjp7InR5cGUiOiJhcnJheSIsIml0ZW1zIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifX0sInNpZ25hdHVyZSI6eyJ0eXBlIjoic3RyaW5nIn19fX19fQ==",
+        "sozu-id": "01M32V70RS5DAPGSXD3E41TGZF"
+      },
+      "body": {
+        "text": "{\"error\":\"payment required\",\"message\":\"Retry with a PAYMENT-SIGNATURE header built from the PAYMENT-REQUIRED header of this response.\",\"accepts\":[{\"network\":\"eip155:84532\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"price\":\"0.01\",\"amount\":\"10000\"}],\"pass\":{\"price\":\"1\",\"ttl_seconds\":3600,\"purchase\":{\"method\":\"POST\",\"url\":\"https://site2md.cleverapps.io/.well-known/otoroshi/x402/session\"},\"present_as\":[\"SIGN-IN-WITH-X header (x402 sign-in-with-x extension)\",\"Otoroshi-X402-Session header (token returned at purchase)\"]}}",
+        "truncated": false
+      },
+      "elapsed_ms": 118,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsImRlc2NyaXB0aW9uIjoiQ29udmVydCBhIHdlYiBwYWdlIHRvIE1hcmtkb3duIG9yIEpTT04iLCJtaW1lVHlwZSI6InRleHQvbWFya2Rvd24iLCJzZXJ2aWNlTmFtZSI6InNpdGUybWQiLCJ0YWdzIjpbIm1hcmtkb3duIiwic2NyYXBpbmciXX0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoic2l0ZTJtZC5jbGV2ZXJhcHBzLmlvIiwidXJpIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsInZlcnNpb24iOiIxIiwibm9uY2UiOiI4NWQwYzgxZGYyNzAzYzAzZjM3MjVhZDMzZGIwZTMwNyIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMVQyMDo0MToxMS4xOTlaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIxVDIwOjQ2OjExLjE5OVoiLCJyZXNvdXJjZXMiOlsiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSJdLCJzdGF0ZW1lbnQiOiJVc2UgbXkgcHJlcGFpZCBzaXRlMm1kIHBhc3MuIn0sInN1cHBvcnRlZENoYWlucyI6W3siY2hhaW5JZCI6ImVpcDE1NTo4NDUzMiIsInR5cGUiOiJlaXAxOTEifV0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicmVxdWlyZWQiOlsiZG9tYWluIiwiYWRkcmVzcyIsInVyaSIsInZlcnNpb24iLCJjaGFpbklkIiwidHlwZSIsIm5vbmNlIiwiaXNzdWVkQXQiLCJzaWduYXR1cmUiXSwicHJvcGVydGllcyI6eyJkb21haW4iOnsidHlwZSI6InN0cmluZyJ9LCJhZGRyZXNzIjp7InR5cGUiOiJzdHJpbmcifSwic3RhdGVtZW50Ijp7InR5cGUiOiJzdHJpbmcifSwidXJpIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwidmVyc2lvbiI6eyJ0eXBlIjoic3RyaW5nIn0sImNoYWluSWQiOnsidHlwZSI6InN0cmluZyJ9LCJ0eXBlIjp7InR5cGUiOiJzdHJpbmcifSwibm9uY2UiOnsidHlwZSI6InN0cmluZyJ9LCJpc3N1ZWRBdCI6eyJ0eXBlIjoic3RyaW5nIiwiZm9ybWF0IjoiZGF0ZS10aW1lIn0sImV4cGlyYXRpb25UaW1lIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwibm90QmVmb3JlIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwicmVxdWVzdElkIjp7InR5cGUiOiJzdHJpbmcifSwicmVzb3VyY2VzIjp7InR5cGUiOiJhcnJheSIsIml0ZW1zIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifX0sInNpZ25hdHVyZSI6eyJ0eXBlIjoic3RyaW5nIn19fX19fQ==",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "resource": {
+            "url": "https://site2md.cleverapps.io/https://example.com",
+            "description": "Convert a web page to Markdown or JSON",
+            "mimeType": "text/markdown",
+            "serviceName": "site2md",
+            "tags": [
+              "markdown",
+              "scraping"
+            ]
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "10000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            }
+          ],
+          "extensions": {
+            "payment-identifier": {
+              "info": {
+                "required": false
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "required"
+                ]
+              }
+            },
+            "sign-in-with-x": {
+              "info": {
+                "domain": "site2md.cleverapps.io",
+                "uri": "https://site2md.cleverapps.io/https://example.com",
+                "version": "1",
+                "nonce": "85d0c81df2703c03f3725ad33db0e307",
+                "issuedAt": "2026-09-21T20:41:11.199Z",
+                "expirationTime": "2026-09-21T20:46:11.199Z",
+                "resources": [
+                  "https://site2md.cleverapps.io/https://example.com"
+                ],
+                "statement": "Use my prepaid site2md pass."
+              },
+              "supportedChains": [
+                {
+                  "chainId": "eip155:84532",
+                  "type": "eip191"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "required": [
+                  "domain",
+                  "address",
+                  "uri",
+                  "version",
+                  "chainId",
+                  "type",
+                  "nonce",
+                  "issuedAt",
+                  "signature"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "chainId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "issuedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expirationTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notBefore": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "seq": 2,
+      "label": "honest payment",
+      "method": "GET",
+      "url": "https://site2md.cleverapps.io/https://example.com",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4YzJlNjBhMzM5MTVjNjdhNDU3ZDFjZTFjZmIxODA2NmQ1ZDE5MTQyZGNhOTI2YmEwNjdjMWZjOTUxM2E4OTA1MDE3MjFhM2EwNjcxY2ZjMmZkMzhkMTdlZTQ4OTUzZjY2ZjFiOTc5MTU4NTJiNDJlZGEzYjQ0NzRjYmIwNDBkYWMxYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwMCIsInZhbGlkQWZ0ZXIiOiIxNzkwMDIzMjExIiwidmFsaWRCZWZvcmUiOiIxNzkwMDIzNTcxIiwibm9uY2UiOiIweDdhYzZiMDEzNTcwYjVlMTE1YTA3MmIxNTg3NGRlODY5ZTg5ZTAwOGIwOTBlZjdkMmJkYjg2YzU3YTI2MDIwM2UifX0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlLCJpZCI6InBheV81MDcyMzdkY2M0ZmQ1MGFmYmFmYjg4YWI5MmY5NDkxYyJ9LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsicmVxdWlyZWQiOnsidHlwZSI6ImJvb2xlYW4ifSwiaWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MTYsIm1heExlbmd0aCI6MTI4fX0sInJlcXVpcmVkIjpbInJlcXVpcmVkIl19fSwic2lnbi1pbi13aXRoLXgiOnsiaW5mbyI6eyJkb21haW4iOiJzaXRlMm1kLmNsZXZlcmFwcHMuaW8iLCJ1cmkiOiJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIiwidmVyc2lvbiI6IjEiLCJub25jZSI6Ijg1ZDBjODFkZjI3MDNjMDNmMzcyNWFkMzNkYjBlMzA3IiwiaXNzdWVkQXQiOiIyMDI2LTA5LTIxVDIwOjQxOjExLjE5OVoiLCJleHBpcmF0aW9uVGltZSI6IjIwMjYtMDktMjFUMjA6NDY6MTEuMTk5WiIsInJlc291cmNlcyI6WyJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIl0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 200,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Session",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "private",
+        "content-length": "197",
+        "content-type": "text/plain; charset=UTF-8",
+        "date": "Mon, 21 Sep 2026 20:41:11 GMT",
+        "payment-response": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YTk0NmQzM2ZiZmUzOTBlNWVlMzFmNWIzZjhjODE2Yzk3ZGVkYWE2MDhjMDg5Mjk4ZmRmY2U2YTlhYjdjNWM1MyIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyJ9",
+        "sozu-id": "01M32V71AX8ZG5Q8JQCM6FTZJC, 01M32V70SF32QY36J7QDD8QP3Z"
+      },
+      "body": {
+        "text": "---\ntitle: Example Domain\n---\n# Example Domain\n\nThis domain is for use in documentation examples without needing permission. Avoid use in operations.\n\n[Learn more](https://iana.org/domains/example)",
+        "truncated": false
+      },
+      "elapsed_ms": 1442,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YTk0NmQzM2ZiZmUzOTBlNWVlMzFmNWIzZjhjODE2Yzk3ZGVkYWE2MDhjMDg5Mjk4ZmRmY2U2YTlhYjdjNWM1MyIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyJ9",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "success": true,
+          "transaction": "0xa946d33fbfe390e5ee31f5b3f8c816c97dedaa608c089298fdfce6a9ab7c5c53",
+          "network": "eip155:84532",
+          "payer": "0x8621a1F258194f55fa11Eb5591DDaB439a18a677"
+        }
+      }
+    },
+    {
+      "seq": 3,
+      "label": "replay of the honest payment",
+      "method": "GET",
+      "url": "https://site2md.cleverapps.io/https://example.com",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4YzJlNjBhMzM5MTVjNjdhNDU3ZDFjZTFjZmIxODA2NmQ1ZDE5MTQyZGNhOTI2YmEwNjdjMWZjOTUxM2E4OTA1MDE3MjFhM2EwNjcxY2ZjMmZkMzhkMTdlZTQ4OTUzZjY2ZjFiOTc5MTU4NTJiNDJlZGEzYjQ0NzRjYmIwNDBkYWMxYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwMCIsInZhbGlkQWZ0ZXIiOiIxNzkwMDIzMjExIiwidmFsaWRCZWZvcmUiOiIxNzkwMDIzNTcxIiwibm9uY2UiOiIweDdhYzZiMDEzNTcwYjVlMTE1YTA3MmIxNTg3NGRlODY5ZTg5ZTAwOGIwOTBlZjdkMmJkYjg2YzU3YTI2MDIwM2UifX0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlLCJpZCI6InBheV81MDcyMzdkY2M0ZmQ1MGFmYmFmYjg4YWI5MmY5NDkxYyJ9LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsicmVxdWlyZWQiOnsidHlwZSI6ImJvb2xlYW4ifSwiaWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MTYsIm1heExlbmd0aCI6MTI4fX0sInJlcXVpcmVkIjpbInJlcXVpcmVkIl19fSwic2lnbi1pbi13aXRoLXgiOnsiaW5mbyI6eyJkb21haW4iOiJzaXRlMm1kLmNsZXZlcmFwcHMuaW8iLCJ1cmkiOiJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIiwidmVyc2lvbiI6IjEiLCJub25jZSI6Ijg1ZDBjODFkZjI3MDNjMDNmMzcyNWFkMzNkYjBlMzA3IiwiaXNzdWVkQXQiOiIyMDI2LTA5LTIxVDIwOjQxOjExLjE5OVoiLCJleHBpcmF0aW9uVGltZSI6IjIwMjYtMDktMjFUMjA6NDY6MTEuMTk5WiIsInJlc291cmNlcyI6WyJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIl0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 409,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Session",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "133",
+        "content-type": "application/json",
+        "date": "Mon, 21 Sep 2026 20:41:15 GMT",
+        "otoroshi-x402-settlement-state": "settled",
+        "payment-response": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YTk0NmQzM2ZiZmUzOTBlNWVlMzFmNWIzZjhjODE2Yzk3ZGVkYWE2MDhjMDg5Mjk4ZmRmY2U2YTlhYjdjNWM1MyIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyJ9",
+        "sozu-id": "01M32V74NAKKXAWN6R4D5WD4EZ"
+      },
+      "body": {
+        "text": "{\"error\":\"payment_already_settled\",\"payment_id\":\"714c8cbda97e0e957000d39de9d65317b86ef06753f01d83747a84fa88add6f6\",\"state\":\"settled\"}",
+        "truncated": false
+      },
+      "elapsed_ms": 14,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YTk0NmQzM2ZiZmUzOTBlNWVlMzFmNWIzZjhjODE2Yzk3ZGVkYWE2MDhjMDg5Mjk4ZmRmY2U2YTlhYjdjNWM1MyIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyJ9",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "success": true,
+          "transaction": "0xa946d33fbfe390e5ee31f5b3f8c816c97dedaa608c089298fdfce6a9ab7c5c53",
+          "network": "eip155:84532",
+          "payer": "0x8621a1F258194f55fa11Eb5591DDaB439a18a677"
+        }
+      }
+    },
+    {
+      "seq": 4,
+      "label": "expired authorization",
+      "method": "GET",
+      "url": "https://site2md.cleverapps.io/https://example.com",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4NGE3NmIyMDc1MDlhNWFmMDUwM2Y4YmRhNDlhYzc4OGUyYmM5YjQ4NjZkOWE5MjMyZjE1YTgzNWE2YjdkOWFiZTI5ODFiZjM1NjAzMGJlOTA4ZDE3MzgyMGY5NTQ4MTVmMzBlYTJmODkxNTVlNWEwOTdmZTYyNjhjZTMwZmFmODAxYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwMCIsInZhbGlkQWZ0ZXIiOiIxNzkwMDE2MDc1IiwidmFsaWRCZWZvcmUiOiIxNzkwMDE5Njc1Iiwibm9uY2UiOiIweGZhOGJiZjBlOTU3ZDYxZDhjOTVmYmNiZmE2ZDc2ZDJmMzFiM2Q4Zjc4ZGYyMWVmN2I5ZjRkODEzZWQxZTk2MjQifX0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlLCJpZCI6InBheV82NmE5MWZkZjUwNjdjZDQzODQxMjY3NWRlZjVkY2U5OCJ9LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsicmVxdWlyZWQiOnsidHlwZSI6ImJvb2xlYW4ifSwiaWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MTYsIm1heExlbmd0aCI6MTI4fX0sInJlcXVpcmVkIjpbInJlcXVpcmVkIl19fSwic2lnbi1pbi13aXRoLXgiOnsiaW5mbyI6eyJkb21haW4iOiJzaXRlMm1kLmNsZXZlcmFwcHMuaW8iLCJ1cmkiOiJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIiwidmVyc2lvbiI6IjEiLCJub25jZSI6Ijg1ZDBjODFkZjI3MDNjMDNmMzcyNWFkMzNkYjBlMzA3IiwiaXNzdWVkQXQiOiIyMDI2LTA5LTIxVDIwOjQxOjExLjE5OVoiLCJleHBpcmF0aW9uVGltZSI6IjIwMjYtMDktMjFUMjA6NDY6MTEuMTk5WiIsInJlc291cmNlcyI6WyJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIl0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Session",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "567",
+        "content-type": "application/json",
+        "date": "Mon, 21 Sep 2026 20:41:15 GMT",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsImRlc2NyaXB0aW9uIjoiQ29udmVydCBhIHdlYiBwYWdlIHRvIE1hcmtkb3duIG9yIEpTT04iLCJtaW1lVHlwZSI6InRleHQvbWFya2Rvd24iLCJzZXJ2aWNlTmFtZSI6InNpdGUybWQiLCJ0YWdzIjpbIm1hcmtkb3duIiwic2NyYXBpbmciXX0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImVycm9yIjoiaW52YWxpZF9leGFjdF9ldm1fcGF5bG9hZF9hdXRob3JpemF0aW9uX3ZhbGlkX2JlZm9yZSIsImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoic2l0ZTJtZC5jbGV2ZXJhcHBzLmlvIiwidXJpIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsInZlcnNpb24iOiIxIiwibm9uY2UiOiI2MDAxNjMxYWUzODM1NWMwMWQyYTg1MWUxMDc3N2ExOSIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMVQyMDo0MToxNS40MTZaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIxVDIwOjQ2OjE1LjQxNloiLCJyZXNvdXJjZXMiOlsiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSJdLCJzdGF0ZW1lbnQiOiJVc2UgbXkgcHJlcGFpZCBzaXRlMm1kIHBhc3MuIn0sInN1cHBvcnRlZENoYWlucyI6W3siY2hhaW5JZCI6ImVpcDE1NTo4NDUzMiIsInR5cGUiOiJlaXAxOTEifV0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicmVxdWlyZWQiOlsiZG9tYWluIiwiYWRkcmVzcyIsInVyaSIsInZlcnNpb24iLCJjaGFpbklkIiwidHlwZSIsIm5vbmNlIiwiaXNzdWVkQXQiLCJzaWduYXR1cmUiXSwicHJvcGVydGllcyI6eyJkb21haW4iOnsidHlwZSI6InN0cmluZyJ9LCJhZGRyZXNzIjp7InR5cGUiOiJzdHJpbmcifSwic3RhdGVtZW50Ijp7InR5cGUiOiJzdHJpbmcifSwidXJpIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwidmVyc2lvbiI6eyJ0eXBlIjoic3RyaW5nIn0sImNoYWluSWQiOnsidHlwZSI6InN0cmluZyJ9LCJ0eXBlIjp7InR5cGUiOiJzdHJpbmcifSwibm9uY2UiOnsidHlwZSI6InN0cmluZyJ9LCJpc3N1ZWRBdCI6eyJ0eXBlIjoic3RyaW5nIiwiZm9ybWF0IjoiZGF0ZS10aW1lIn0sImV4cGlyYXRpb25UaW1lIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwibm90QmVmb3JlIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwicmVxdWVzdElkIjp7InR5cGUiOiJzdHJpbmcifSwicmVzb3VyY2VzIjp7InR5cGUiOiJhcnJheSIsIml0ZW1zIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifX0sInNpZ25hdHVyZSI6eyJ0eXBlIjoic3RyaW5nIn19fX19fQ==",
+        "sozu-id": "01M32V74NV84281A4CFSP9028K"
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_exact_evm_payload_authorization_valid_before\",\"message\":\"Retry with a PAYMENT-SIGNATURE header built from the PAYMENT-REQUIRED header of this response.\",\"accepts\":[{\"network\":\"eip155:84532\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"price\":\"0.01\",\"amount\":\"10000\"}],\"pass\":{\"price\":\"1\",\"ttl_seconds\":3600,\"purchase\":{\"method\":\"POST\",\"url\":\"https://site2md.cleverapps.io/.well-known/otoroshi/x402/session\"},\"present_as\":[\"SIGN-IN-WITH-X header (x402 sign-in-with-x extension)\",\"Otoroshi-X402-Session header (token returned at purchase)\"]}}",
+        "truncated": false
+      },
+      "elapsed_ms": 236,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsImRlc2NyaXB0aW9uIjoiQ29udmVydCBhIHdlYiBwYWdlIHRvIE1hcmtkb3duIG9yIEpTT04iLCJtaW1lVHlwZSI6InRleHQvbWFya2Rvd24iLCJzZXJ2aWNlTmFtZSI6InNpdGUybWQiLCJ0YWdzIjpbIm1hcmtkb3duIiwic2NyYXBpbmciXX0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImVycm9yIjoiaW52YWxpZF9leGFjdF9ldm1fcGF5bG9hZF9hdXRob3JpemF0aW9uX3ZhbGlkX2JlZm9yZSIsImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoic2l0ZTJtZC5jbGV2ZXJhcHBzLmlvIiwidXJpIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsInZlcnNpb24iOiIxIiwibm9uY2UiOiI2MDAxNjMxYWUzODM1NWMwMWQyYTg1MWUxMDc3N2ExOSIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMVQyMDo0MToxNS40MTZaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIxVDIwOjQ2OjE1LjQxNloiLCJyZXNvdXJjZXMiOlsiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSJdLCJzdGF0ZW1lbnQiOiJVc2UgbXkgcHJlcGFpZCBzaXRlMm1kIHBhc3MuIn0sInN1cHBvcnRlZENoYWlucyI6W3siY2hhaW5JZCI6ImVpcDE1NTo4NDUzMiIsInR5cGUiOiJlaXAxOTEifV0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicmVxdWlyZWQiOlsiZG9tYWluIiwiYWRkcmVzcyIsInVyaSIsInZlcnNpb24iLCJjaGFpbklkIiwidHlwZSIsIm5vbmNlIiwiaXNzdWVkQXQiLCJzaWduYXR1cmUiXSwicHJvcGVydGllcyI6eyJkb21haW4iOnsidHlwZSI6InN0cmluZyJ9LCJhZGRyZXNzIjp7InR5cGUiOiJzdHJpbmcifSwic3RhdGVtZW50Ijp7InR5cGUiOiJzdHJpbmcifSwidXJpIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwidmVyc2lvbiI6eyJ0eXBlIjoic3RyaW5nIn0sImNoYWluSWQiOnsidHlwZSI6InN0cmluZyJ9LCJ0eXBlIjp7InR5cGUiOiJzdHJpbmcifSwibm9uY2UiOnsidHlwZSI6InN0cmluZyJ9LCJpc3N1ZWRBdCI6eyJ0eXBlIjoic3RyaW5nIiwiZm9ybWF0IjoiZGF0ZS10aW1lIn0sImV4cGlyYXRpb25UaW1lIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwibm90QmVmb3JlIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwicmVxdWVzdElkIjp7InR5cGUiOiJzdHJpbmcifSwicmVzb3VyY2VzIjp7InR5cGUiOiJhcnJheSIsIml0ZW1zIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifX0sInNpZ25hdHVyZSI6eyJ0eXBlIjoic3RyaW5nIn19fX19fQ==",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "resource": {
+            "url": "https://site2md.cleverapps.io/https://example.com",
+            "description": "Convert a web page to Markdown or JSON",
+            "mimeType": "text/markdown",
+            "serviceName": "site2md",
+            "tags": [
+              "markdown",
+              "scraping"
+            ]
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "10000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            }
+          ],
+          "error": "invalid_exact_evm_payload_authorization_valid_before",
+          "extensions": {
+            "payment-identifier": {
+              "info": {
+                "required": false
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "required"
+                ]
+              }
+            },
+            "sign-in-with-x": {
+              "info": {
+                "domain": "site2md.cleverapps.io",
+                "uri": "https://site2md.cleverapps.io/https://example.com",
+                "version": "1",
+                "nonce": "6001631ae38355c01d2a851e10777a19",
+                "issuedAt": "2026-09-21T20:41:15.416Z",
+                "expirationTime": "2026-09-21T20:46:15.416Z",
+                "resources": [
+                  "https://site2md.cleverapps.io/https://example.com"
+                ],
+                "statement": "Use my prepaid site2md pass."
+              },
+              "supportedChains": [
+                {
+                  "chainId": "eip155:84532",
+                  "type": "eip191"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "required": [
+                  "domain",
+                  "address",
+                  "uri",
+                  "version",
+                  "chainId",
+                  "type",
+                  "nonce",
+                  "issuedAt",
+                  "signature"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "chainId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "issuedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expirationTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notBefore": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "seq": 5,
+      "label": "not yet valid authorization",
+      "method": "GET",
+      "url": "https://site2md.cleverapps.io/https://example.com",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4ZmUxYTBhYzE4ZTI1ZGY1MmQxMjJhODYyYjQ2NjM1MjM3NGM4NTkwYTNmZDNhYjU0Y2M4ODU0NTQ4NWY4MTkyYzU4NDcxODMyODE2N2NiMDk5YTgwZjRmODY1NDlmZWUzNmZmZGZjN2QyM2QzOWMyOGUzODA0OWU1YzU5YzBjMTUxYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4ODYyMWExRjI1ODE5NGY1NWZhMTFFYjU1OTFERGFCNDM5YTE4YTY3NyIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwMCIsInZhbGlkQWZ0ZXIiOiI0MTAyNDQ0ODAwIiwidmFsaWRCZWZvcmUiOiI0MTAyNDQ4NDAwIiwibm9uY2UiOiIweDdjMjZkOTZkZGY0MmE5OTJjNTBlZjdhMTYyMzliYTg0Y2UwNGUyMmExOWJjMzVkN2Y0YTMxNmFjZTVhYjQ2ZmIifX0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlLCJpZCI6InBheV8zYzFiMjhhZTViNWQxZWQ1MTQxNzk4NWQxYjY3NjIyZCJ9LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsicmVxdWlyZWQiOnsidHlwZSI6ImJvb2xlYW4ifSwiaWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MTYsIm1heExlbmd0aCI6MTI4fX0sInJlcXVpcmVkIjpbInJlcXVpcmVkIl19fSwic2lnbi1pbi13aXRoLXgiOnsiaW5mbyI6eyJkb21haW4iOiJzaXRlMm1kLmNsZXZlcmFwcHMuaW8iLCJ1cmkiOiJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIiwidmVyc2lvbiI6IjEiLCJub25jZSI6Ijg1ZDBjODFkZjI3MDNjMDNmMzcyNWFkMzNkYjBlMzA3IiwiaXNzdWVkQXQiOiIyMDI2LTA5LTIxVDIwOjQxOjExLjE5OVoiLCJleHBpcmF0aW9uVGltZSI6IjIwMjYtMDktMjFUMjA6NDY6MTEuMTk5WiIsInJlc291cmNlcyI6WyJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIl0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Session",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "566",
+        "content-type": "application/json",
+        "date": "Mon, 21 Sep 2026 20:41:15 GMT",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsImRlc2NyaXB0aW9uIjoiQ29udmVydCBhIHdlYiBwYWdlIHRvIE1hcmtkb3duIG9yIEpTT04iLCJtaW1lVHlwZSI6InRleHQvbWFya2Rvd24iLCJzZXJ2aWNlTmFtZSI6InNpdGUybWQiLCJ0YWdzIjpbIm1hcmtkb3duIiwic2NyYXBpbmciXX0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImVycm9yIjoiaW52YWxpZF9leGFjdF9ldm1fcGF5bG9hZF9hdXRob3JpemF0aW9uX3ZhbGlkX2FmdGVyIiwiZXh0ZW5zaW9ucyI6eyJwYXltZW50LWlkZW50aWZpZXIiOnsiaW5mbyI6eyJyZXF1aXJlZCI6ZmFsc2V9LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsicmVxdWlyZWQiOnsidHlwZSI6ImJvb2xlYW4ifSwiaWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MTYsIm1heExlbmd0aCI6MTI4fX0sInJlcXVpcmVkIjpbInJlcXVpcmVkIl19fSwic2lnbi1pbi13aXRoLXgiOnsiaW5mbyI6eyJkb21haW4iOiJzaXRlMm1kLmNsZXZlcmFwcHMuaW8iLCJ1cmkiOiJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIiwidmVyc2lvbiI6IjEiLCJub25jZSI6ImExMmI4N2EwNzI5YTJhYzg2NThhZTU0NDgwM2NhNjhmIiwiaXNzdWVkQXQiOiIyMDI2LTA5LTIxVDIwOjQxOjE1LjY1NFoiLCJleHBpcmF0aW9uVGltZSI6IjIwMjYtMDktMjFUMjA6NDY6MTUuNjU0WiIsInJlc291cmNlcyI6WyJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIl0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fX19",
+        "sozu-id": "01M32V74X99HVM2J5ZAMN2MQS8"
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_exact_evm_payload_authorization_valid_after\",\"message\":\"Retry with a PAYMENT-SIGNATURE header built from the PAYMENT-REQUIRED header of this response.\",\"accepts\":[{\"network\":\"eip155:84532\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"price\":\"0.01\",\"amount\":\"10000\"}],\"pass\":{\"price\":\"1\",\"ttl_seconds\":3600,\"purchase\":{\"method\":\"POST\",\"url\":\"https://site2md.cleverapps.io/.well-known/otoroshi/x402/session\"},\"present_as\":[\"SIGN-IN-WITH-X header (x402 sign-in-with-x extension)\",\"Otoroshi-X402-Session header (token returned at purchase)\"]}}",
+        "truncated": false
+      },
+      "elapsed_ms": 235,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cHM6Ly9zaXRlMm1kLmNsZXZlcmFwcHMuaW8vaHR0cHM6Ly9leGFtcGxlLmNvbSIsImRlc2NyaXB0aW9uIjoiQ29udmVydCBhIHdlYiBwYWdlIHRvIE1hcmtkb3duIG9yIEpTT04iLCJtaW1lVHlwZSI6InRleHQvbWFya2Rvd24iLCJzZXJ2aWNlTmFtZSI6InNpdGUybWQiLCJ0YWdzIjpbIm1hcmtkb3duIiwic2NyYXBpbmciXX0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fV0sImVycm9yIjoiaW52YWxpZF9leGFjdF9ldm1fcGF5bG9hZF9hdXRob3JpemF0aW9uX3ZhbGlkX2FmdGVyIiwiZXh0ZW5zaW9ucyI6eyJwYXltZW50LWlkZW50aWZpZXIiOnsiaW5mbyI6eyJyZXF1aXJlZCI6ZmFsc2V9LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsicmVxdWlyZWQiOnsidHlwZSI6ImJvb2xlYW4ifSwiaWQiOnsidHlwZSI6InN0cmluZyIsIm1pbkxlbmd0aCI6MTYsIm1heExlbmd0aCI6MTI4fX0sInJlcXVpcmVkIjpbInJlcXVpcmVkIl19fSwic2lnbi1pbi13aXRoLXgiOnsiaW5mbyI6eyJkb21haW4iOiJzaXRlMm1kLmNsZXZlcmFwcHMuaW8iLCJ1cmkiOiJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIiwidmVyc2lvbiI6IjEiLCJub25jZSI6ImExMmI4N2EwNzI5YTJhYzg2NThhZTU0NDgwM2NhNjhmIiwiaXNzdWVkQXQiOiIyMDI2LTA5LTIxVDIwOjQxOjE1LjY1NFoiLCJleHBpcmF0aW9uVGltZSI6IjIwMjYtMDktMjFUMjA6NDY6MTUuNjU0WiIsInJlc291cmNlcyI6WyJodHRwczovL3NpdGUybWQuY2xldmVyYXBwcy5pby9odHRwczovL2V4YW1wbGUuY29tIl0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fX19",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "x402Version": 2,
+          "resource": {
+            "url": "https://site2md.cleverapps.io/https://example.com",
+            "description": "Convert a web page to Markdown or JSON",
+            "mimeType": "text/markdown",
+            "serviceName": "site2md",
+            "tags": [
+              "markdown",
+              "scraping"
+            ]
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "10000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            }
+          ],
+          "error": "invalid_exact_evm_payload_authorization_valid_after",
+          "extensions": {
+            "payment-identifier": {
+              "info": {
+                "required": false
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "required"
+                ]
+              }
+            },
+            "sign-in-with-x": {
+              "info": {
+                "domain": "site2md.cleverapps.io",
+                "uri": "https://site2md.cleverapps.io/https://example.com",
+                "version": "1",
+                "nonce": "a12b87a0729a2ac8658ae544803ca68f",
+                "issuedAt": "2026-09-21T20:41:15.654Z",
+                "expirationTime": "2026-09-21T20:46:15.654Z",
+                "resources": [
+                  "https://site2md.cleverapps.io/https://example.com"
+                ],
+                "statement": "Use my prepaid site2md pass."
+              },
+              "supportedChains": [
+                {
+                  "chainId": "eip155:84532",
+                  "type": "eip191"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "required": [
+                  "domain",
+                  "address",
+                  "uri",
+                  "version",
+                  "chainId",
+                  "type",
+                  "nonce",
+                  "issuedAt",
+                  "signature"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "chainId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "issuedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expirationTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notBefore": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "pass": 12,
+    "fail": 0,
+    "blocked": 0,
+    "warn": 0,
+    "info": 4,
+    "skip": 2,
+    "cannot_assess": 0,
+    "incomplete": [
+      "EXACT-017v",
+      "EXACT-017r"
+    ]
+  },
+  "outcome": "conformant",
+  "exit_code": 0
+}

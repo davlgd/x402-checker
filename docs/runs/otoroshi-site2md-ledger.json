@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "tool": "x402-conformance 0.1.0",
+  "spec_commit": "59f1347a1a0828af6c9eb9c01298338d3eff3053",
+  "eip3009_commit": "7c9338feb41279b037700259c631ff6f51b0df3d",
+  "target": "eip155:84532 0xa946d33fbfe390e5ee31f5b3f8c816c97dedaa608c089298fdfce6a9ab7c5c53",
+  "started_at": "2026-09-21T20:45:50.117336Z",
+  "finished_at": "2026-09-21T20:45:50.42503Z",
+  "scope": [
+    "ledger"
+  ],
+  "omitted": [],
+  "strict": true,
+  "suites": [
+    {
+      "name": "ledger",
+      "findings": [
+        {
+          "check": {
+            "id": "LEDGER-RPC",
+            "title": "the node the tool read",
+            "level": "optional",
+            "source": "policy",
+            "clause": "extensions/offer-receipt 5.5: \"verifiers MAY check the blockchain to confirm the transaction exists and matches expected parameters\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "eip155:84532 read through https://sepolia.base.org/",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "LEDGER-TX",
+            "title": "the receipt's transaction is included on the paid network and succeeded",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.3.2: success \"Whether the settlement succeeded\", transaction \"Blockchain transaction hash\"",
+            "ambiguity": "a chain that contradicts the receipt is not attributed: the server relays its facilitator's word and, from outside, nothing says which of them named the transaction. One node's receipt describes a mined block, not a final one"
+          },
+          "verdict": "pass",
+          "detail": "included in block 47127493 (0xfef2c2b03ca99f6cd6da2f24da96485b1fcb231b0e257abe68648d593e2a1e9e), status 1, submitted by 0xd407e409E34E0b9afb99EcCeb609bDbcD5e7f1bf, as seen by https://sepolia.base.org/ at 2026-09-21T20:45:50Z; sealed, finality not assessed",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "EXACT-017",
+            "title": "the transaction carries exactly one transfer of amount of asset from the payer to payTo",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "schemes/exact/scheme_exact.md: \"settlement MUST produce exactly one identifiable transfer of amount of asset to payTo. Operations incidental to that transfer ... do not disqualify it\"",
+            "ambiguity": "judged on the Transfer events the asset emitted in this transaction, not on balances; several identical transfers (a batch) leave the binding ambiguous and are reported as not assessable, not as a double charge"
+          },
+          "verdict": "pass",
+          "detail": "one Transfer of 10000 from 0x8621a1F258194f55fa11Eb5591DDaB439a18a677 to 0x209693Bc6afc0C5328bA36FaF03C514EF312287C by 0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "EVM-006",
+            "title": "the asset recorded the expected authorization as used (AuthorizationUsed with the payer and the nonce)",
+            "level": "required",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_evm.md: \"the Facilitator cannot modify the amount or destination. They serve only as the transaction broadcaster\"; EIP-3009 (spec/external): \"event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce)\"",
+            "ambiguity": "an asset that emits no EIP-3009 event leaves the binding unestablished: reported as not assessable, since the core text does not require the event"
+          },
+          "verdict": "pass",
+          "detail": "AuthorizationUsed(0x8621a1F258194f55fa11Eb5591DDaB439a18a677, 0x7ac6b013570b5e115a072b15874de869e89e008b090ef7d2bdb86c57a260203e) emitted by 0x036CbD53842c5426634e7929541eC2318f3dCF7e in this transaction",
+          "evidence": []
+        }
+      ],
+      "traces": [],
+      "ledger": [
+        {
+          "node": "https://sepolia.base.org/",
+          "observed_at": "2026-09-21T20:45:50Z",
+          "chain_id": 84532,
+          "state": "sealed",
+          "receipt": {
+            "transactionHash": "0xa946d33fbfe390e5ee31f5b3f8c816c97dedaa608c089298fdfce6a9ab7c5c53",
+            "status": "0x1",
+            "blockNumber": "0x2cf1bc5",
+            "blockHash": "0xfef2c2b03ca99f6cd6da2f24da96485b1fcb231b0e257abe68648d593e2a1e9e",
+            "from": "0xd407e409e34e0b9afb99ecceb609bdbcd5e7f1bf",
+            "to": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+            "logs": [
+              {
+                "address": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+                "topics": [
+                  "0x98de503528ee59b575ef0c0a2576a82497bfc029a5685b209e9ec333479b10a5",
+                  "0x0000000000000000000000008621a1f258194f55fa11eb5591ddab439a18a677",
+                  "0x7ac6b013570b5e115a072b15874de869e89e008b090ef7d2bdb86c57a260203e"
+                ],
+                "data": "0x",
+                "logIndex": "0x8"
+              },
+              {
+                "address": "0x036cbd53842c5426634e7929541ec2318f3dcf7e",
+                "topics": [
+                  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                  "0x0000000000000000000000008621a1f258194f55fa11eb5591ddab439a18a677",
+                  "0x000000000000000000000000209693bc6afc0c5328ba36faf03c514ef312287c"
+                ],
+                "data": "0x0000000000000000000000000000000000000000000000000000000000002710",
+                "logIndex": "0x9"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "exchanges": [],
+  "summary": {
+    "pass": 3,
+    "fail": 0,
+    "blocked": 0,
+    "warn": 0,
+    "info": 1,
+    "skip": 0,
+    "cannot_assess": 0,
+    "incomplete": []
+  },
+  "outcome": "conformant",
+  "exit_code": 0
+}

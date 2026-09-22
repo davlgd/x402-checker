@@ -1,0 +1,22 @@
+[package]
+name = "x402-checker-types"
+description = "Wire types of x402 v2: payment requirements, payloads, receipts, headers, a tolerant base64 codec, CAIP-2 and base58 helpers, standard error codes; no I/O"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+
+[dependencies]
+base64.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,993 @@
+{
+  "schema_version": 1,
+  "tool": "x402-conformance 0.1.0",
+  "spec_commit": "59f1347a1a0828af6c9eb9c01298338d3eff3053",
+  "target": "http://127.0.0.1:4021/weather",
+  "started_at": "2026-09-21T20:06:06.209318Z",
+  "finished_at": "2026-09-21T20:06:06.240662Z",
+  "scope": [
+    "probe"
+  ],
+  "omitted": [],
+  "strict": false,
+  "suites": [
+    {
+      "name": "probe",
+      "findings": [
+        {
+          "check": {
+            "id": "HTTP-001",
+            "title": "an unpaid request is answered with status 402",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md, Payment Required Signaling: \"The server indicates payment is required using the HTTP 402\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-002",
+            "title": "the 402 carries a PAYMENT-REQUIRED header",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md: \"HTTP 402 status code with PAYMENT-REQUIRED header\", \"the canonical HTTP transport location\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "header present",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-003",
+            "title": "PAYMENT-REQUIRED is base64 of a JSON object",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md: \"Base64-encoded PaymentRequired schema in header\"",
+            "ambiguity": "the spec never names the base64 alphabet or padding; the tool accepts standard and URL-safe, padded or not"
+          },
+          "verdict": "pass",
+          "detail": "626 bytes of JSON",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-003v",
+            "title": "the base64 variant matches the spec examples (standard alphabet, padded)",
+            "level": "optional",
+            "source": "example",
+            "clause": "transports-v2/http.md examples use the standard alphabet with = padding",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "alphabet Indistinct, padding Present",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-002",
+            "title": "PaymentRequired.x402Version is the number 2",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: x402Version, number, Required, \"must be 2\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "x402Version = 2",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-003",
+            "title": "PaymentRequired.error, when present, is a string",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: error, string, Optional",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "error = \"Payment required\"",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-004",
+            "title": "PaymentRequired.resource is an object with a string url",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: resource, object, Required; ResourceInfo.url, string, Required",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "resource = {\"url\":\"http://127.0.0.1:4021/weather\",\"description\":\"Weather data\",\"mimeType\":\"…",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-014",
+            "title": "resource.url designates the requested resource",
+            "level": "optional",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.1.2: url, \"URL of the protected resource\"",
+            "ambiguity": "the spec does not say whether url must equal the request URL byte for byte; the tool reports the relation"
+          },
+          "verdict": "info",
+          "detail": "resource.url equals the request URL: http://127.0.0.1:4021/weather",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-016",
+            "title": "ResourceInfo optional fields respect their bounds (serviceName, tags, iconUrl, description, mimeType)",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: serviceName printable ASCII max 32; tags max 5, each printable ASCII max 32; iconUrl absolute http(s) max 2048",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "within bounds",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-005",
+            "title": "PaymentRequired.accepts is an array",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: accepts, array, Required",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "accepts is an array",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-005e",
+            "title": "accepts offers at least one payment method",
+            "level": "recommended",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.1.2: \"Array of payment requirement objects defining acceptable payment methods\"",
+            "ambiguity": "the text does not forbid an empty array; a 402 without any offer cannot be paid, so the tool warns"
+          },
+          "verdict": "pass",
+          "detail": "2 offer(s)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-007",
+            "title": "every accepts[] entry has scheme, network, amount, asset, payTo (strings) and maxTimeoutSeconds (number)",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: PaymentRequirements table, all six Required; extra, object, Optional",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "2 offer(s) well-formed",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-008",
+            "title": "every accepts[].network is a CAIP-2 identifier",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: network, \"Blockchain network identifier in CAIP-2 format\"; 11.1 \"{namespace}:{reference}\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "all CAIP-2 (2 checked)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-009",
+            "title": "every accepts[].amount is a decimal integer string of atomic units",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: amount, string, \"Required payment amount in atomic token units\"",
+            "ambiguity": "no grammar is given; a non-negative decimal integer is the only reading consistent with the examples"
+          },
+          "verdict": "pass",
+          "detail": "all decimal integers (2 checked)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-042",
+            "title": "reserved extra keys carry their section 6.1 meaning: paymentFlow is authorization, upfront or escrow; assetTransferMethod is a string",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 6.1: \"clients and servers MUST interpret them as defined here\"; flow table",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "reserved keys absent or valid",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "EVM-012",
+            "title": "exact offers on eip155 networks carry extra.name and extra.version (EIP-712 domain of the token)",
+            "level": "required",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_evm.md 1: \"extra.name (required)\", \"extra.version (required)\" for eip3009",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "name and version present (1 eip3009 offer(s))",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-010e",
+            "title": "exact offers on eip155 networks have 20-byte hex asset and payTo addresses",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.1.2: asset \"Token contract address\", payTo \"Recipient wallet address\"; EVM binding uses them as contract and recipient",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "asset and payTo are addresses (1 offer(s))",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "EVM-004i",
+            "title": "asset transfer methods offered on eip155 networks",
+            "level": "optional",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_evm.md: eip3009 (default), permit2, erc7710",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "accepts[0]: eip3009 (default)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-009",
+            "title": "the 402 body (free for the server to choose)",
+            "level": "optional",
+            "source": "prose",
+            "clause": "transports-v2/http.md, Response Body: \"Response bodies are a server implementation concern\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "2 bytes, content-type application/json; charset=utf-8",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "PROBE-CORS",
+            "title": "browser clients can read the x402 headers (Access-Control-Expose-Headers)",
+            "level": "optional",
+            "source": "prose",
+            "clause": "not a spec clause; needed only by browser clients",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "no Access-Control-Expose-Headers on the 402 (only matters for browser clients)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "PROBE-STABLE",
+            "title": "two consecutive unpaid requests receive the same accepts[]",
+            "level": "optional",
+            "source": "prose",
+            "clause": "not a spec clause; a client that reads the terms then pays relies on it",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "same accepts[] on both requests",
+          "evidence": [
+            0,
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-010",
+            "title": "a malformed PAYMENT-SIGNATURE never gets the resource (no 2xx) and is not a server error (no 5xx)",
+            "level": "required",
+            "source": "field-table",
+            "clause": "transports-v2/http.md, Error Handling: Invalid Payment 400 \"Malformed payment payload\"; Payment Failed 402; Server Error 500 \"during payment processing\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "5 malformed values, none served, none 5xx",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "HTTP-010s",
+            "title": "a malformed PAYMENT-SIGNATURE is answered with status 400",
+            "level": "recommended",
+            "source": "field-table",
+            "clause": "transports-v2/http.md, Error Handling: \"Invalid Payment | 400 | Malformed payment payload or requirements\"",
+            "ambiguity": "the same table maps Payment Failed to 402, so a 402 with a fresh challenge is defensible; the tool warns rather than fails"
+          },
+          "verdict": "warn",
+          "detail": "not base64 -> 402; base64 of plain text -> 402; base64 of an empty object -> 402; accepted matching no offer (amount changed) -> 402; unknown scheme -> 402",
+          "evidence": [
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-070",
+            "title": "error reasons given on refusals",
+            "level": "optional",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 9: standard codes \"may be returned by facilitators or resource servers\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "not base64: Payment required; base64 of plain text: Payment required; base64 of an empty object: Unsupported x402 version: undefined; accepted matching no offer (amount changed): No matching payment requirements; unknown scheme: No matching payment requirements",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "PROBE-V1",
+            "title": "how a payload marked x402Version 1 is treated",
+            "level": "optional",
+            "source": "policy",
+            "clause": "x402-specification-v2.md 5.2.2: x402Version Required; a v2 server may also keep accepting v1 payloads for compatibility, which the v2 text neither requires nor forbids",
+            "ambiguity": "not judged: refusing (400 or 402) and delegating to the facilitator are both defensible; what happened is reported"
+          },
+          "verdict": "info",
+          "detail": "served: the server accepted the version 1 marker and left validation to its facilitator (or speaks v1 too)",
+          "evidence": [
+            7
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-054z",
+            "title": "a payment that cannot be valid (zero signature) never yields the resource",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 6.1: \"at least one check ... MUST run before the resource executes. The resource never executes with nothing checked\"",
+            "ambiguity": null
+          },
+          "verdict": "fail",
+          "detail": "status 200 with a success receipt: either the server skipped verification or its facilitator accepted a zero signature; the headers alone do not tell which",
+          "evidence": [
+            8
+          ],
+          "attribution": "unknown"
+        }
+      ],
+      "traces": []
+    }
+  ],
+  "exchanges": [
+    {
+      "seq": 1,
+      "label": "unpaid request",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {},
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 1,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "Payment required",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 2,
+      "label": "unpaid request, again",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {},
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 0,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "Payment required",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 3,
+      "label": "malformed PAYMENT-SIGNATURE: not base64",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "this is not base64!"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 7,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "Payment required",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 4,
+      "label": "malformed PAYMENT-SIGNATURE: base64 of plain text",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "cGxhaW4gdGV4dA=="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 1,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "Payment required",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 5,
+      "label": "malformed PAYMENT-SIGNATURE: base64 of an empty object",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "e30="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJVbnN1cHBvcnRlZCB4NDAyIHZlcnNpb246IHVuZGVmaW5lZCIsInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6NDAyMS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJXZWF0aGVyIGRhdGEiLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24ifSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiNHpNTUM5c3J0NVJpNVgxNEdBZ1hoYUhpaTNHblBBRUVSWVBKZ1pKRG5jRFUiLCJwYXlUbyI6IkNLUEtKV05kSkVxYTgxeDdDa1oxNEJWUGlZNnkxNlN4czdvd3pucXRXWXA1IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnt9fV19",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 0,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJVbnN1cHBvcnRlZCB4NDAyIHZlcnNpb246IHVuZGVmaW5lZCIsInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6NDAyMS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJXZWF0aGVyIGRhdGEiLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24ifSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiNHpNTUM5c3J0NVJpNVgxNEdBZ1hoYUhpaTNHblBBRUVSWVBKZ1pKRG5jRFUiLCJwYXlUbyI6IkNLUEtKV05kSkVxYTgxeDdDa1oxNEJWUGlZNnkxNlN4czdvd3pucXRXWXA1IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnt9fV19",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "Unsupported x402 version: undefined",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 6,
+      "label": "malformed PAYMENT-SIGNATURE: accepted matching no offer (amount changed)",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDEiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fSwicGF5bG9hZCI6eyJzaWduYXR1cmUiOiIweDAwIiwiYXV0aG9yaXphdGlvbiI6e319fQ=="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJObyBtYXRjaGluZyBwYXltZW50IHJlcXVpcmVtZW50cyIsInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6NDAyMS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJXZWF0aGVyIGRhdGEiLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24ifSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiNHpNTUM5c3J0NVJpNVgxNEdBZ1hoYUhpaTNHblBBRUVSWVBKZ1pKRG5jRFUiLCJwYXlUbyI6IkNLUEtKV05kSkVxYTgxeDdDa1oxNEJWUGlZNnkxNlN4czdvd3pucXRXWXA1IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnt9fV19",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 0,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJObyBtYXRjaGluZyBwYXltZW50IHJlcXVpcmVtZW50cyIsInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6NDAyMS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJXZWF0aGVyIGRhdGEiLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24ifSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiNHpNTUM5c3J0NVJpNVgxNEdBZ1hoYUhpaTNHblBBRUVSWVBKZ1pKRG5jRFUiLCJwYXlUbyI6IkNLUEtKV05kSkVxYTgxeDdDa1oxNEJWUGlZNnkxNlN4czdvd3pucXRXWXA1IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnt9fV19",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "No matching payment requirements",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 7,
+      "label": "malformed PAYMENT-SIGNATURE: unknown scheme",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoibm8tc3VjaC1zY2hlbWUiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4MDAiLCJhdXRob3JpemF0aW9uIjp7fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJObyBtYXRjaGluZyBwYXltZW50IHJlcXVpcmVtZW50cyIsInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6NDAyMS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJXZWF0aGVyIGRhdGEiLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24ifSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiNHpNTUM5c3J0NVJpNVgxNEdBZ1hoYUhpaTNHblBBRUVSWVBKZ1pKRG5jRFUiLCJwYXlUbyI6IkNLUEtKV05kSkVxYTgxeDdDa1oxNEJWUGlZNnkxNlN4czdvd3pucXRXWXA1IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnt9fV19",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 0,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJObyBtYXRjaGluZyBwYXltZW50IHJlcXVpcmVtZW50cyIsInJlc291cmNlIjp7InVybCI6Imh0dHA6Ly8xMjcuMC4wLjE6NDAyMS93ZWF0aGVyIiwiZGVzY3JpcHRpb24iOiJXZWF0aGVyIGRhdGEiLCJtaW1lVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24ifSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiNHpNTUM5c3J0NVJpNVgxNEdBZ1hoYUhpaTNHblBBRUVSWVBKZ1pKRG5jRFUiLCJwYXlUbyI6IkNLUEtKV05kSkVxYTgxeDdDa1oxNEJWUGlZNnkxNlN4czdvd3pucXRXWXA1IiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnt9fV19",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "No matching payment requirements",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 8,
+      "label": "payload marked x402Version 1",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MSwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4MDAiLCJhdXRob3JpemF0aW9uIjp7fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 200,
+      "response_headers": {
+        "cache-control": "private",
+        "connection": "keep-alive",
+        "content-length": "47",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2f-iov7VJQQAdBSRAJH1XVvoxAxAIs\"",
+        "keep-alive": "timeout=5",
+        "payment-response": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIifQ==",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{\"report\":{\"weather\":\"sunny\",\"temperature\":70}}",
+        "truncated": false
+      },
+      "elapsed_ms": 7,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIifQ==",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "success": true,
+          "transaction": "0xabababababababababababababababababababababababababababababababab",
+          "network": "eip155:84532"
+        }
+      }
+    },
+    {
+      "seq": 9,
+      "label": "well-formed payment with a zero signature",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4Mjg2NTIxYzJkZmNCOThhMzgwMTlCYzYxMWU4ZDQxMDczNjUzREIxZiIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwIiwidmFsaWRBZnRlciI6IjE3OTAwMjExMDYiLCJ2YWxpZEJlZm9yZSI6IjE3OTAwMjE0NjYiLCJub25jZSI6IjB4NmNhMGY2NDAxNzA0ODMyMjlkMWQwN2E5ZTY2ZDdiMTNhNTM4YWJmYWVhMDM5YjU5MDkzNzc0YThjZDI4ODNkMyJ9fX0="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 200,
+      "response_headers": {
+        "cache-control": "private",
+        "connection": "keep-alive",
+        "content-length": "47",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:06:06 GMT",
+        "etag": "W/\"2f-iov7VJQQAdBSRAJH1XVvoxAxAIs\"",
+        "keep-alive": "timeout=5",
+        "payment-response": "eyJzdWNjZXNzIjp0cnVlLCJwYXllciI6IjB4Mjg2NTIxYzJkZmNCOThhMzgwMTlCYzYxMWU4ZDQxMDczNjUzREIxZiIsInRyYW5zYWN0aW9uIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiIiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiJ9",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{\"report\":{\"weather\":\"sunny\",\"temperature\":70}}",
+        "truncated": false
+      },
+      "elapsed_ms": 5,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjp0cnVlLCJwYXllciI6IjB4Mjg2NTIxYzJkZmNCOThhMzgwMTlCYzYxMWU4ZDQxMDczNjUzREIxZiIsInRyYW5zYWN0aW9uIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiIiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiJ9",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "success": true,
+          "payer": "0x286521c2dfcB98a38019Bc611e8d41073653DB1f",
+          "transaction": "0xabababababababababababababababababababababababababababababababab",
+          "network": "eip155:84532"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "pass": 16,
+    "fail": 0,
+    "blocked": 1,
+    "warn": 1,
+    "info": 8,
+    "skip": 0,
+    "cannot_assess": 0,
+    "incomplete": [
+      "CORE-054z"
+    ]
+  },
+  "outcome": "conformant",
+  "exit_code": 0
+}

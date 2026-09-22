@@ -1,0 +1,1425 @@
+{
+  "schema_version": 1,
+  "tool": "x402-conformance 0.1.0",
+  "spec_commit": "59f1347a1a0828af6c9eb9c01298338d3eff3053",
+  "target": "http://127.0.0.1:4021/weather",
+  "started_at": "2026-09-21T20:00:57.151838Z",
+  "finished_at": "2026-09-21T20:01:07.720525Z",
+  "scope": [
+    "scenarios"
+  ],
+  "omitted": [],
+  "strict": false,
+  "suites": [
+    {
+      "name": "scenarios",
+      "findings": [
+        {
+          "check": {
+            "id": "SCN-WIRED",
+            "title": "the server talks to the scripted facilitator (and to the witness, when one is started)",
+            "level": "optional",
+            "source": "policy",
+            "clause": "precondition of this suite: the facilitator must see the server's calls and the receipt must carry its transaction hash",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "1 verify, 1 settle, 0 backend call(s); no witness started",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-055",
+            "title": "the /verify request carries x402Version 2, the client's paymentPayload and the offered paymentRequirements",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 7.1: request `{x402Version, paymentPayload, paymentRequirements}`",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "as sent and as offered",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-059",
+            "title": "the /settle request has the same structure and content as /verify",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 7.2: \"Request: Same structure as /verify endpoint\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "as sent and as offered",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-050a",
+            "title": "verify completes before settle starts",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 6.1, authorization flow: \"verify → resource → settle → respond\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "first verify finished Some(2026-09-21T20:01:05.413062Z), first settle started 2026-09-21T20:01:05.420775Z",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-050",
+            "title": "the resource executes after verify completed and before settle starts",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 6.1: \"Read-only verify before the resource executes; funds move only after it completes successfully\"",
+            "ambiguity": null
+          },
+          "verdict": "skip",
+          "detail": "no witness backend: point the server's upstream at --witness-listen to observe the resource call",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "CORE-030",
+            "title": "the settlement outcome reaches the client in PAYMENT-RESPONSE with the facilitator's success, transaction and network",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.3.1: \"the server includes transaction details in the payment response field\"; transports-v2/http.md, Settlement Response Delivery",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 200, receipt {\"success\":true,\"payer\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"transaction\":\"0xabababababababababababababababababababababababababababababababab\",\"network\":\"eip155:84532\"}",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-064",
+            "title": "what the facilitator sent in EXTENSION-RESPONSES never reaches the client",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 7.2.1: sidechannel \"not part of the JSON response body and not forwarded to buyers\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "not forwarded: header absent, marker absent from the body and the receipt",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "SCN-SETTLES",
+            "title": "number of /settle calls for one payment",
+            "level": "optional",
+            "source": "policy",
+            "clause": "x402-specification-v2.md 7.2 allows several settles per payment; reported as a fact",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "1 settle call(s)",
+          "evidence": [
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-054v",
+            "title": "a payment the facilitator finds invalid is neither settled nor served",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 6.1: \"at least one check ... MUST run before the resource executes\"; authorization flow settles only after a successful resource",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402, 0 settle call(s)",
+          "evidence": [
+            2
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-054b",
+            "title": "a payment the facilitator finds invalid does not reach the resource",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 6.1: \"The resource never executes with nothing checked\"",
+            "ambiguity": null
+          },
+          "verdict": "skip",
+          "detail": "no witness backend",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "CORE-070v",
+            "title": "the facilitator's invalidReason is surfaced to the client",
+            "level": "optional",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 9: error codes \"help clients understand why a payment failed\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "reason insufficient_funds",
+          "evidence": [
+            2
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-006",
+            "title": "a rejected settlement is a 402 whose PAYMENT-RESPONSE relays success false, errorReason and transaction",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md, Error Handling: Payment Failed 402; Settlement Response Delivery, Example (Failure): 402 with PAYMENT-RESPONSE `{success:false, errorReason, transaction:\"\", network}`",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402, receipt {\"success\":false,\"errorReason\":\"invalid_transaction_state\",\"payer\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"transaction\":\"\",\"network\":\"eip155:84532\"}",
+          "evidence": [
+            3
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-038",
+            "title": "a settlement_pending outcome reaches the client with its transaction and network, and is not presented as a success",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 9: settlement_pending \"MUST carry a non-empty transaction ... and network\"; 5.3.2 transaction MUST be non-empty when errorReason is settlement_pending",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402, receipt {\"success\":false,\"errorReason\":\"settlement_pending\",\"payer\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"transaction\":\"0xdead\",\"network\":\"eip155:84532\"}",
+          "evidence": [
+            4
+          ]
+        },
+        {
+          "check": {
+            "id": "SCN-PENDING-CHALLENGE",
+            "title": "a pending settlement does not come with a fresh PAYMENT-REQUIRED inviting a second signature",
+            "level": "recommended",
+            "source": "policy",
+            "clause": "not a spec clause: a client that signs again after a pending outcome may pay twice",
+            "ambiguity": "the spec leaves the server's answer to a pending settlement open beyond the receipt content"
+          },
+          "verdict": "pass",
+          "detail": "no fresh challenge",
+          "evidence": [
+            4
+          ]
+        },
+        {
+          "check": {
+            "id": "SCN-UNREADABLE",
+            "title": "an unreadable settle answer is not presented as a successful settlement",
+            "level": "required",
+            "source": "field-table",
+            "clause": "transports-v2/http.md, Error Handling: 200 means \"Payment verified and settled successfully\"; nothing was established here",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402, receipt {\"success\":false,\"errorReason\":\"Facilitator settle failed (502): <h1>Bad gateway</h1>\",\"errorMessage\":\"Facilitator settle failed (502): <h1>Bad gateway</h1>\",\"network\":\"eip155:84532\",\"transaction\":\"\"}",
+          "evidence": [
+            5
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-051",
+            "title": "a failing resource is not settled",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 6.1, authorization flow: \"funds move only after it completes successfully\"",
+            "ambiguity": null
+          },
+          "verdict": "skip",
+          "detail": "no witness backend: point the server's upstream at --witness-listen to exercise it",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "CORE-072s",
+            "title": "a replayed payment whose nonce the facilitator refuses is not presented as a new success",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "schemes/exact/scheme_exact.md: \"A consumed primitive MUST produce a settlement failure, never a success\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402, receipt {\"success\":false,\"errorReason\":\"invalid_transaction_state\",\"payer\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"transaction\":\"\",\"network\":\"eip155:84532\"}, 1 settle call(s) on replay",
+          "evidence": [
+            1,
+            6
+          ]
+        }
+      ],
+      "traces": [
+        {
+          "label": "happy path payment",
+          "calls": [
+            {
+              "seq": 2,
+              "started_at": "2026-09-21T20:01:05.411564Z",
+              "finished_at": "2026-09-21T20:01:05.413062Z",
+              "answered_status": 200,
+              "endpoint": "verify",
+              "method": "POST",
+              "path": "/verify",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020805\",\"validBefore\":\"1790021165\",\"nonce\":\"0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020805",
+                      "validBefore": "1790021165",
+                      "nonce": "0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            },
+            {
+              "seq": 3,
+              "started_at": "2026-09-21T20:01:05.420775Z",
+              "finished_at": "2026-09-21T20:01:05.42249Z",
+              "answered_status": 200,
+              "endpoint": "settle",
+              "method": "POST",
+              "path": "/settle",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020805\",\"validBefore\":\"1790021165\",\"nonce\":\"0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020805",
+                      "validBefore": "1790021165",
+                      "nonce": "0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            }
+          ],
+          "quiescent": true
+        },
+        {
+          "label": "verify invalid",
+          "calls": [
+            {
+              "seq": 4,
+              "started_at": "2026-09-21T20:01:05.836467Z",
+              "finished_at": "2026-09-21T20:01:05.837962Z",
+              "answered_status": 200,
+              "endpoint": "verify",
+              "method": "POST",
+              "path": "/verify",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0xb4f798f99926978b10daca82f5c196ca11b1e19c24e94ca22affc4bdc23df416765363c4fed65ef35dd17b5f74cd22df061f704ea301f393a226b10587c26d541b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020805\",\"validBefore\":\"1790021165\",\"nonce\":\"0x5b80462d8c6fa1df98ad7f54fe80cbb1a77b6bc4e91f99e8136817f5defe87b5\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0xb4f798f99926978b10daca82f5c196ca11b1e19c24e94ca22affc4bdc23df416765363c4fed65ef35dd17b5f74cd22df061f704ea301f393a226b10587c26d541b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020805",
+                      "validBefore": "1790021165",
+                      "nonce": "0x5b80462d8c6fa1df98ad7f54fe80cbb1a77b6bc4e91f99e8136817f5defe87b5"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            }
+          ],
+          "quiescent": true
+        },
+        {
+          "label": "settle rejected",
+          "calls": [
+            {
+              "seq": 5,
+              "started_at": "2026-09-21T20:01:06.252287Z",
+              "finished_at": "2026-09-21T20:01:06.253789Z",
+              "answered_status": 200,
+              "endpoint": "verify",
+              "method": "POST",
+              "path": "/verify",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0xea4eafefa3da81f37aa50f0f52e427c682741a9556c007f3743796a25f3cb3e72da55e78ad69e01279cf32e29a93390337c55d486422ad62dd31940a085bb33e1b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020806\",\"validBefore\":\"1790021166\",\"nonce\":\"0x3944fb92817dcddd97d782d8616dfc6846f1ae793ac43addf095506c6280c71d\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0xea4eafefa3da81f37aa50f0f52e427c682741a9556c007f3743796a25f3cb3e72da55e78ad69e01279cf32e29a93390337c55d486422ad62dd31940a085bb33e1b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020806",
+                      "validBefore": "1790021166",
+                      "nonce": "0x3944fb92817dcddd97d782d8616dfc6846f1ae793ac43addf095506c6280c71d"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            },
+            {
+              "seq": 6,
+              "started_at": "2026-09-21T20:01:06.257784Z",
+              "finished_at": "2026-09-21T20:01:06.259386Z",
+              "answered_status": 200,
+              "endpoint": "settle",
+              "method": "POST",
+              "path": "/settle",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0xea4eafefa3da81f37aa50f0f52e427c682741a9556c007f3743796a25f3cb3e72da55e78ad69e01279cf32e29a93390337c55d486422ad62dd31940a085bb33e1b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020806\",\"validBefore\":\"1790021166\",\"nonce\":\"0x3944fb92817dcddd97d782d8616dfc6846f1ae793ac43addf095506c6280c71d\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0xea4eafefa3da81f37aa50f0f52e427c682741a9556c007f3743796a25f3cb3e72da55e78ad69e01279cf32e29a93390337c55d486422ad62dd31940a085bb33e1b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020806",
+                      "validBefore": "1790021166",
+                      "nonce": "0x3944fb92817dcddd97d782d8616dfc6846f1ae793ac43addf095506c6280c71d"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            }
+          ],
+          "quiescent": true
+        },
+        {
+          "label": "settle pending",
+          "calls": [
+            {
+              "seq": 7,
+              "started_at": "2026-09-21T20:01:06.669698Z",
+              "finished_at": "2026-09-21T20:01:06.670944Z",
+              "answered_status": 200,
+              "endpoint": "verify",
+              "method": "POST",
+              "path": "/verify",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0xf1a9ca55bbbc30536323a949cf4a9348c42d15b99d3e0740266be79afaf2b58560c9573b9deb4897103642a24933bc3c075136271bc425ab5611b10f04c2839a1b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020806\",\"validBefore\":\"1790021166\",\"nonce\":\"0x6fe41dde40f394c13691ac6e7d9c70b3b9197c4ae7b4bc2de077293b1ac5fa9a\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0xf1a9ca55bbbc30536323a949cf4a9348c42d15b99d3e0740266be79afaf2b58560c9573b9deb4897103642a24933bc3c075136271bc425ab5611b10f04c2839a1b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020806",
+                      "validBefore": "1790021166",
+                      "nonce": "0x6fe41dde40f394c13691ac6e7d9c70b3b9197c4ae7b4bc2de077293b1ac5fa9a"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            },
+            {
+              "seq": 8,
+              "started_at": "2026-09-21T20:01:06.672507Z",
+              "finished_at": "2026-09-21T20:01:06.673774Z",
+              "answered_status": 200,
+              "endpoint": "settle",
+              "method": "POST",
+              "path": "/settle",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0xf1a9ca55bbbc30536323a949cf4a9348c42d15b99d3e0740266be79afaf2b58560c9573b9deb4897103642a24933bc3c075136271bc425ab5611b10f04c2839a1b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020806\",\"validBefore\":\"1790021166\",\"nonce\":\"0x6fe41dde40f394c13691ac6e7d9c70b3b9197c4ae7b4bc2de077293b1ac5fa9a\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0xf1a9ca55bbbc30536323a949cf4a9348c42d15b99d3e0740266be79afaf2b58560c9573b9deb4897103642a24933bc3c075136271bc425ab5611b10f04c2839a1b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020806",
+                      "validBefore": "1790021166",
+                      "nonce": "0x6fe41dde40f394c13691ac6e7d9c70b3b9197c4ae7b4bc2de077293b1ac5fa9a"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            },
+            {
+              "seq": 9,
+              "started_at": "2026-09-21T20:01:06.674903Z",
+              "finished_at": "2026-09-21T20:01:06.67615Z",
+              "answered_status": 200,
+              "endpoint": "settle",
+              "method": "POST",
+              "path": "/settle",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0xf1a9ca55bbbc30536323a949cf4a9348c42d15b99d3e0740266be79afaf2b58560c9573b9deb4897103642a24933bc3c075136271bc425ab5611b10f04c2839a1b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020806\",\"validBefore\":\"1790021166\",\"nonce\":\"0x6fe41dde40f394c13691ac6e7d9c70b3b9197c4ae7b4bc2de077293b1ac5fa9a\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0xf1a9ca55bbbc30536323a949cf4a9348c42d15b99d3e0740266be79afaf2b58560c9573b9deb4897103642a24933bc3c075136271bc425ab5611b10f04c2839a1b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020806",
+                      "validBefore": "1790021166",
+                      "nonce": "0x6fe41dde40f394c13691ac6e7d9c70b3b9197c4ae7b4bc2de077293b1ac5fa9a"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            }
+          ],
+          "quiescent": true
+        },
+        {
+          "label": "settle unreadable",
+          "calls": [
+            {
+              "seq": 10,
+              "started_at": "2026-09-21T20:01:07.095911Z",
+              "finished_at": "2026-09-21T20:01:07.097319Z",
+              "answered_status": 200,
+              "endpoint": "verify",
+              "method": "POST",
+              "path": "/verify",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0x81e55a5fb68f7258f2e12247c2a33e0d51c77c602a25a7846b8ac3de619bbbf87160b234b08de664dba041c36950050f204eb8da3d5c0394f5e2a82d05a0aaa01b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020806\",\"validBefore\":\"1790021166\",\"nonce\":\"0x8059dc1e83d99ab817119256a89abf7d4b6bd5e030b9bf05fa369157da66ce81\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0x81e55a5fb68f7258f2e12247c2a33e0d51c77c602a25a7846b8ac3de619bbbf87160b234b08de664dba041c36950050f204eb8da3d5c0394f5e2a82d05a0aaa01b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020806",
+                      "validBefore": "1790021166",
+                      "nonce": "0x8059dc1e83d99ab817119256a89abf7d4b6bd5e030b9bf05fa369157da66ce81"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            },
+            {
+              "seq": 11,
+              "started_at": "2026-09-21T20:01:07.101309Z",
+              "finished_at": "2026-09-21T20:01:07.102758Z",
+              "answered_status": 502,
+              "endpoint": "settle",
+              "method": "POST",
+              "path": "/settle",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0x81e55a5fb68f7258f2e12247c2a33e0d51c77c602a25a7846b8ac3de619bbbf87160b234b08de664dba041c36950050f204eb8da3d5c0394f5e2a82d05a0aaa01b\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020806\",\"validBefore\":\"1790021166\",\"nonce\":\"0x8059dc1e83d99ab817119256a89abf7d4b6bd5e030b9bf05fa369157da66ce81\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0x81e55a5fb68f7258f2e12247c2a33e0d51c77c602a25a7846b8ac3de619bbbf87160b234b08de664dba041c36950050f204eb8da3d5c0394f5e2a82d05a0aaa01b",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020806",
+                      "validBefore": "1790021166",
+                      "nonce": "0x8059dc1e83d99ab817119256a89abf7d4b6bd5e030b9bf05fa369157da66ce81"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            }
+          ],
+          "quiescent": true
+        },
+        {
+          "label": "replay of the happy path payment",
+          "calls": [
+            {
+              "seq": 12,
+              "started_at": "2026-09-21T20:01:07.511711Z",
+              "finished_at": "2026-09-21T20:01:07.51297Z",
+              "answered_status": 200,
+              "endpoint": "verify",
+              "method": "POST",
+              "path": "/verify",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020805\",\"validBefore\":\"1790021165\",\"nonce\":\"0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020805",
+                      "validBefore": "1790021165",
+                      "nonce": "0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            },
+            {
+              "seq": 13,
+              "started_at": "2026-09-21T20:01:07.514264Z",
+              "finished_at": "2026-09-21T20:01:07.515549Z",
+              "answered_status": 200,
+              "endpoint": "settle",
+              "method": "POST",
+              "path": "/settle",
+              "headers": {
+                "accept": "*/*",
+                "accept-encoding": "gzip, deflate",
+                "accept-language": "*",
+                "connection": "keep-alive",
+                "content-length": "965",
+                "content-type": "application/json",
+                "host": "127.0.0.1:4020",
+                "sec-fetch-mode": "cors",
+                "user-agent": "node"
+              },
+              "body_text": "{\"x402Version\":2,\"paymentPayload\":{\"x402Version\":2,\"accepted\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}},\"payload\":{\"signature\":\"0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c\",\"authorization\":{\"from\":\"0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE\",\"to\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"value\":\"1000\",\"validAfter\":\"1790020805\",\"validBefore\":\"1790021165\",\"nonce\":\"0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695\"}}},\"paymentRequirements\":{\"scheme\":\"exact\",\"network\":\"eip155:84532\",\"amount\":\"1000\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"payTo\":\"0x209693Bc6afc0C5328bA36FaF03C514EF312287C\",\"maxTimeoutSeconds\":300,\"extra\":{\"name\":\"USDC\",\"version\":\"2\"}}}",
+              "body_json": {
+                "x402Version": 2,
+                "paymentPayload": {
+                  "x402Version": 2,
+                  "accepted": {
+                    "scheme": "exact",
+                    "network": "eip155:84532",
+                    "amount": "1000",
+                    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                    "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                    "maxTimeoutSeconds": 300,
+                    "extra": {
+                      "name": "USDC",
+                      "version": "2"
+                    }
+                  },
+                  "payload": {
+                    "signature": "0x56a0d96dabe8e78a9c4532a59b078718c0c7466e7d1382b4d96785084ca45ca879f5d7910ccf6e17ca2167222bc0b0ad50718d5c83a3e64a3fbf609e326a5b5c1c",
+                    "authorization": {
+                      "from": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+                      "to": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                      "value": "1000",
+                      "validAfter": "1790020805",
+                      "validBefore": "1790021165",
+                      "nonce": "0x53f1000cf248940858962e0b5821ba7f75c8964d5263fb09552fa615ebddb695"
+                    }
+                  }
+                },
+                "paymentRequirements": {
+                  "scheme": "exact",
+                  "network": "eip155:84532",
+                  "amount": "1000",
+                  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+                  "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+                  "maxTimeoutSeconds": 300,
+                  "extra": {
+                    "name": "USDC",
+                    "version": "2"
+                  }
+                }
+              }
+            }
+          ],
+          "quiescent": true
+        }
+      ]
+    }
+  ],
+  "exchanges": [
+    {
+      "seq": 1,
+      "label": "unpaid request for the terms",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {},
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:01:05 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 3,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJQYXltZW50IHJlcXVpcmVkIiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovLzEyNy4wLjAuMTo0MDIxL3dlYXRoZXIiLCJkZXNjcmlwdGlvbiI6IldlYXRoZXIgZGF0YSIsIm1pbWVUeXBlIjoiYXBwbGljYXRpb24vanNvbiJ9LCJhY2NlcHRzIjpbeyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7Im5hbWUiOiJVU0RDIiwidmVyc2lvbiI6IjIifX0seyJzY2hlbWUiOiJleGFjdCIsIm5ldHdvcmsiOiJzb2xhbmE6RXRXVFJBQlphWXE2aU1mZVlLb3VSdTE2NlZVMnhxYTEiLCJhbW91bnQiOiIxMDAwIiwiYXNzZXQiOiI0ek1NQzlzcnQ1Umk1WDE0R0FnWGhhSGlpM0duUEFFRVJZUEpnWkpEbmNEVSIsInBheVRvIjoiQ0tQS0pXTmRKRXFhODF4N0NrWjE0QlZQaVk2eTE2U3hzN293em5xdFdZcDUiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6e319XX0=",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "Payment required",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 2,
+      "label": "happy path payment",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4NTZhMGQ5NmRhYmU4ZTc4YTljNDUzMmE1OWIwNzg3MThjMGM3NDY2ZTdkMTM4MmI0ZDk2Nzg1MDg0Y2E0NWNhODc5ZjVkNzkxMGNjZjZlMTdjYTIxNjcyMjJiYzBiMGFkNTA3MThkNWM4M2EzZTY0YTNmYmY2MDllMzI2YTViNWMxYyIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwIiwidmFsaWRBZnRlciI6IjE3OTAwMjA4MDUiLCJ2YWxpZEJlZm9yZSI6IjE3OTAwMjExNjUiLCJub25jZSI6IjB4NTNmMTAwMGNmMjQ4OTQwODU4OTYyZTBiNTgyMWJhN2Y3NWM4OTY0ZDUyNjNmYjA5NTUyZmE2MTVlYmRkYjY5NSJ9fX0="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 200,
+      "response_headers": {
+        "cache-control": "private",
+        "connection": "keep-alive",
+        "content-length": "47",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:01:05 GMT",
+        "etag": "W/\"2f-iov7VJQQAdBSRAJH1XVvoxAxAIs\"",
+        "keep-alive": "timeout=5",
+        "payment-response": "eyJzdWNjZXNzIjp0cnVlLCJwYXllciI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRyYW5zYWN0aW9uIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiIiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiJ9",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{\"report\":{\"weather\":\"sunny\",\"temperature\":70}}",
+        "truncated": false
+      },
+      "elapsed_ms": 22,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjp0cnVlLCJwYXllciI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRyYW5zYWN0aW9uIjoiMHhhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiIiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiJ9",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "success": true,
+          "payer": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+          "transaction": "0xabababababababababababababababababababababababababababababababab",
+          "network": "eip155:84532"
+        }
+      }
+    },
+    {
+      "seq": 3,
+      "label": "verify invalid",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4YjRmNzk4Zjk5OTI2OTc4YjEwZGFjYTgyZjVjMTk2Y2ExMWIxZTE5YzI0ZTk0Y2EyMmFmZmM0YmRjMjNkZjQxNjc2NTM2M2M0ZmVkNjVlZjM1ZGQxN2I1Zjc0Y2QyMmRmMDYxZjcwNGVhMzAxZjM5M2EyMjZiMTA1ODdjMjZkNTQxYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwIiwidmFsaWRBZnRlciI6IjE3OTAwMjA4MDUiLCJ2YWxpZEJlZm9yZSI6IjE3OTAwMjExNjUiLCJub25jZSI6IjB4NWI4MDQ2MmQ4YzZmYTFkZjk4YWQ3ZjU0ZmU4MGNiYjFhNzdiNmJjNGU5MWY5OWU4MTM2ODE3ZjVkZWZlODdiNSJ9fX0="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:01:05 GMT",
+        "etag": "W/\"2-vyGp6PvFo4RvsFtPoIWeCReyIC8\"",
+        "keep-alive": "timeout=5",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJpbnN1ZmZpY2llbnRfZnVuZHMiLCJyZXNvdXJjZSI6eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjQwMjEvd2VhdGhlciIsImRlc2NyaXB0aW9uIjoiV2VhdGhlciBkYXRhIiwibWltZVR5cGUiOiJhcHBsaWNhdGlvbi9qc29uIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fSx7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6InNvbGFuYTpFdFdUUkFCWmFZcTZpTWZlWUtvdVJ1MTY2VlUyeHFhMSIsImFtb3VudCI6IjEwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiJDS1BLSldOZEpFcWE4MXg3Q2taMTRCVlBpWTZ5MTZTeHM3b3d6bnF0V1lwNSIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7fX1dfQ==",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 8,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwiZXJyb3IiOiJpbnN1ZmZpY2llbnRfZnVuZHMiLCJyZXNvdXJjZSI6eyJ1cmwiOiJodHRwOi8vMTI3LjAuMC4xOjQwMjEvd2VhdGhlciIsImRlc2NyaXB0aW9uIjoiV2VhdGhlciBkYXRhIiwibWltZVR5cGUiOiJhcHBsaWNhdGlvbi9qc29uIn0sImFjY2VwdHMiOlt7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsImFtb3VudCI6IjEwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjMwMCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fSx7InNjaGVtZSI6ImV4YWN0IiwibmV0d29yayI6InNvbGFuYTpFdFdUUkFCWmFZcTZpTWZlWUtvdVJ1MTY2VlUyeHFhMSIsImFtb3VudCI6IjEwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiJDS1BLSldOZEpFcWE4MXg3Q2taMTRCVlBpWTZ5MTZTeHM3b3d6bnF0V1lwNSIsIm1heFRpbWVvdXRTZWNvbmRzIjozMDAsImV4dHJhIjp7fX1dfQ==",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "error": "insufficient_funds",
+          "resource": {
+            "url": "http://127.0.0.1:4021/weather",
+            "description": "Weather data",
+            "mimeType": "application/json"
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "1000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "1000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "CKPKJWNdJEqa81x7CkZ14BVPiY6y16Sxs7owznqtWYp5",
+              "maxTimeoutSeconds": 300,
+              "extra": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "seq": 4,
+      "label": "settle rejected",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4ZWE0ZWFmZWZhM2RhODFmMzdhYTUwZjBmNTJlNDI3YzY4Mjc0MWE5NTU2YzAwN2YzNzQzNzk2YTI1ZjNjYjNlNzJkYTU1ZTc4YWQ2OWUwMTI3OWNmMzJlMjlhOTMzOTAzMzdjNTVkNDg2NDIyYWQ2MmRkMzE5NDBhMDg1YmIzM2UxYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwIiwidmFsaWRBZnRlciI6IjE3OTAwMjA4MDYiLCJ2YWxpZEJlZm9yZSI6IjE3OTAwMjExNjYiLCJub25jZSI6IjB4Mzk0NGZiOTI4MTdkY2RkZDk3ZDc4MmQ4NjE2ZGZjNjg0NmYxYWU3OTNhYzQzYWRkZjA5NTUwNmM2MjgwYzcxZCJ9fX0="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:01:06 GMT",
+        "etag": "W/\"2f-iov7VJQQAdBSRAJH1XVvoxAxAIs\"",
+        "keep-alive": "timeout=5",
+        "payment-response": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJpbnZhbGlkX3RyYW5zYWN0aW9uX3N0YXRlIiwicGF5ZXIiOiIweDQ2N0U4Njc1QzlFQUVjZWM2NDJjRWI1NUFjOEVGNTVmNTMyMkNlY0UiLCJ0cmFuc2FjdGlvbiI6IiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIifQ==",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 13,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJpbnZhbGlkX3RyYW5zYWN0aW9uX3N0YXRlIiwicGF5ZXIiOiIweDQ2N0U4Njc1QzlFQUVjZWM2NDJjRWI1NUFjOEVGNTVmNTMyMkNlY0UiLCJ0cmFuc2FjdGlvbiI6IiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIifQ==",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "success": false,
+          "errorReason": "invalid_transaction_state",
+          "payer": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+          "transaction": "",
+          "network": "eip155:84532"
+        }
+      }
+    },
+    {
+      "seq": 5,
+      "label": "settle pending",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4ZjFhOWNhNTViYmJjMzA1MzYzMjNhOTQ5Y2Y0YTkzNDhjNDJkMTViOTlkM2UwNzQwMjY2YmU3OWFmYWYyYjU4NTYwYzk1NzNiOWRlYjQ4OTcxMDM2NDJhMjQ5MzNiYzNjMDc1MTM2MjcxYmM0MjVhYjU2MTFiMTBmMDRjMjgzOWExYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwIiwidmFsaWRBZnRlciI6IjE3OTAwMjA4MDYiLCJ2YWxpZEJlZm9yZSI6IjE3OTAwMjExNjYiLCJub25jZSI6IjB4NmZlNDFkZGU0MGYzOTRjMTM2OTFhYzZlN2Q5YzcwYjNiOTE5N2M0YWU3YjRiYzJkZTA3NzI5M2IxYWM1ZmE5YSJ9fX0="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:01:06 GMT",
+        "etag": "W/\"2f-iov7VJQQAdBSRAJH1XVvoxAxAIs\"",
+        "keep-alive": "timeout=5",
+        "payment-response": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJzZXR0bGVtZW50X3BlbmRpbmciLCJwYXllciI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRyYW5zYWN0aW9uIjoiMHhkZWFkIiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiJ9",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 9,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJzZXR0bGVtZW50X3BlbmRpbmciLCJwYXllciI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRyYW5zYWN0aW9uIjoiMHhkZWFkIiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiJ9",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "success": false,
+          "errorReason": "settlement_pending",
+          "payer": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+          "transaction": "0xdead",
+          "network": "eip155:84532"
+        }
+      }
+    },
+    {
+      "seq": 6,
+      "label": "settle unreadable",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4ODFlNTVhNWZiNjhmNzI1OGYyZTEyMjQ3YzJhMzNlMGQ1MWM3N2M2MDJhMjVhNzg0NmI4YWMzZGU2MTliYmJmODcxNjBiMjM0YjA4ZGU2NjRkYmEwNDFjMzY5NTAwNTBmMjA0ZWI4ZGEzZDVjMDM5NGY1ZTJhODJkMDVhMGFhYTAxYiIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwIiwidmFsaWRBZnRlciI6IjE3OTAwMjA4MDYiLCJ2YWxpZEJlZm9yZSI6IjE3OTAwMjExNjYiLCJub25jZSI6IjB4ODA1OWRjMWU4M2Q5OWFiODE3MTE5MjU2YTg5YWJmN2Q0YjZiZDVlMDMwYjliZjA1ZmEzNjkxNTdkYTY2Y2U4MSJ9fX0="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:01:07 GMT",
+        "etag": "W/\"2f-iov7VJQQAdBSRAJH1XVvoxAxAIs\"",
+        "keep-alive": "timeout=5",
+        "payment-response": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJGYWNpbGl0YXRvciBzZXR0bGUgZmFpbGVkICg1MDIpOiA8aDE+QmFkIGdhdGV3YXk8L2gxPiIsImVycm9yTWVzc2FnZSI6IkZhY2lsaXRhdG9yIHNldHRsZSBmYWlsZWQgKDUwMik6IDxoMT5CYWQgZ2F0ZXdheTwvaDE+IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsInRyYW5zYWN0aW9uIjoiIn0=",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 11,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJGYWNpbGl0YXRvciBzZXR0bGUgZmFpbGVkICg1MDIpOiA8aDE+QmFkIGdhdGV3YXk8L2gxPiIsImVycm9yTWVzc2FnZSI6IkZhY2lsaXRhdG9yIHNldHRsZSBmYWlsZWQgKDUwMik6IDxoMT5CYWQgZ2F0ZXdheTwvaDE+IiwibmV0d29yayI6ImVpcDE1NTo4NDUzMiIsInRyYW5zYWN0aW9uIjoiIn0=",
+        "variant": {
+          "alphabet": "standard",
+          "padding": "present"
+        },
+        "json": {
+          "success": false,
+          "errorReason": "Facilitator settle failed (502): <h1>Bad gateway</h1>",
+          "errorMessage": "Facilitator settle failed (502): <h1>Bad gateway</h1>",
+          "network": "eip155:84532",
+          "transaction": ""
+        }
+      }
+    },
+    {
+      "seq": 7,
+      "label": "replay of the happy path payment",
+      "method": "GET",
+      "url": "http://127.0.0.1:4021/weather",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMCIsImFzc2V0IjoiMHgwMzZDYkQ1Mzg0MmM1NDI2NjM0ZTc5Mjk1NDFlQzIzMThmM2RDRjdlIiwicGF5VG8iOiIweDIwOTY5M0JjNmFmYzBDNTMyOGJBMzZGYUYwM0M1MTRFRjMxMjI4N0MiLCJtYXhUaW1lb3V0U2Vjb25kcyI6MzAwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4NTZhMGQ5NmRhYmU4ZTc4YTljNDUzMmE1OWIwNzg3MThjMGM3NDY2ZTdkMTM4MmI0ZDk2Nzg1MDg0Y2E0NWNhODc5ZjVkNzkxMGNjZjZlMTdjYTIxNjcyMjJiYzBiMGFkNTA3MThkNWM4M2EzZTY0YTNmYmY2MDllMzI2YTViNWMxYyIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4NDY3RTg2NzVDOUVBRWNlYzY0MmNFYjU1QWM4RUY1NWY1MzIyQ2VjRSIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwIiwidmFsaWRBZnRlciI6IjE3OTAwMjA4MDUiLCJ2YWxpZEJlZm9yZSI6IjE3OTAwMjExNjUiLCJub25jZSI6IjB4NTNmMTAwMGNmMjQ4OTQwODU4OTYyZTBiNTgyMWJhN2Y3NWM4OTY0ZDUyNjNmYjA5NTUyZmE2MTVlYmRkYjY5NSJ9fX0="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "cache-control": "no-store",
+        "connection": "keep-alive",
+        "content-length": "2",
+        "content-type": "application/json; charset=utf-8",
+        "date": "Mon, 21 Sep 2026 20:01:07 GMT",
+        "etag": "W/\"2f-iov7VJQQAdBSRAJH1XVvoxAxAIs\"",
+        "keep-alive": "timeout=5",
+        "payment-response": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJpbnZhbGlkX3RyYW5zYWN0aW9uX3N0YXRlIiwicGF5ZXIiOiIweDQ2N0U4Njc1QzlFQUVjZWM2NDJjRWI1NUFjOEVGNTVmNTMyMkNlY0UiLCJ0cmFuc2FjdGlvbiI6IiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIifQ==",
+        "x-powered-by": "Express"
+      },
+      "body": {
+        "text": "{}",
+        "truncated": false
+      },
+      "elapsed_ms": 7,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjpmYWxzZSwiZXJyb3JSZWFzb24iOiJpbnZhbGlkX3RyYW5zYWN0aW9uX3N0YXRlIiwicGF5ZXIiOiIweDQ2N0U4Njc1QzlFQUVjZWM2NDJjRWI1NUFjOEVGNTVmNTMyMkNlY0UiLCJ0cmFuc2FjdGlvbiI6IiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIifQ==",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "success": false,
+          "errorReason": "invalid_transaction_state",
+          "payer": "0x467E8675C9EAEcec642cEb55Ac8EF55f5322CecE",
+          "transaction": "",
+          "network": "eip155:84532"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "pass": 11,
+    "fail": 0,
+    "blocked": 0,
+    "warn": 0,
+    "info": 3,
+    "skip": 3,
+    "cannot_assess": 0,
+    "incomplete": [
+      "CORE-050",
+      "CORE-054b",
+      "CORE-051"
+    ]
+  },
+  "outcome": "conformant",
+  "exit_code": 0
+}

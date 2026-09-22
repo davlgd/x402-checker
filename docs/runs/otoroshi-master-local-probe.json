@@ -1,0 +1,1602 @@
+{
+  "schema_version": 1,
+  "tool": "x402-conformance 0.1.0",
+  "spec_commit": "59f1347a1a0828af6c9eb9c01298338d3eff3053",
+  "eip3009_commit": "7c9338feb41279b037700259c631ff6f51b0df3d",
+  "target": "http://x402-local.oto.tools:8090/report",
+  "started_at": "2026-09-22T07:50:45.889211Z",
+  "finished_at": "2026-09-22T07:50:46.196911Z",
+  "scope": [
+    "probe"
+  ],
+  "omitted": [],
+  "strict": false,
+  "suites": [
+    {
+      "name": "probe",
+      "findings": [
+        {
+          "check": {
+            "id": "HTTP-001",
+            "title": "an unpaid request is answered with status 402",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md, Payment Required Signaling: \"The server indicates payment is required using the HTTP 402\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "status 402",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-002",
+            "title": "the 402 carries a PAYMENT-REQUIRED header",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md: \"HTTP 402 status code with PAYMENT-REQUIRED header\", \"the canonical HTTP transport location\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "header present",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-003",
+            "title": "PAYMENT-REQUIRED is base64 of a JSON object",
+            "level": "required",
+            "source": "prose",
+            "clause": "transports-v2/http.md: \"Base64-encoded PaymentRequired schema in header\"",
+            "ambiguity": "the spec never names the base64 alphabet or padding; the tool accepts standard and URL-safe, padded or not"
+          },
+          "verdict": "pass",
+          "detail": "2838 bytes of JSON",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-003v",
+            "title": "the base64 variant matches the spec examples (standard alphabet, padded)",
+            "level": "optional",
+            "source": "example",
+            "clause": "transports-v2/http.md examples use the standard alphabet with = padding",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "alphabet Indistinct, padding NotNeeded",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-002",
+            "title": "PaymentRequired.x402Version is the number 2",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: x402Version, number, Required, \"must be 2\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "x402Version = 2",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-004",
+            "title": "PaymentRequired.resource is an object with a string url",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: resource, object, Required; ResourceInfo.url, string, Required",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "resource = {\"url\":\"http://x402-local.oto.tools:8090/report\",\"description\":\"Witness backend …",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-014",
+            "title": "resource.url designates the requested resource",
+            "level": "optional",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.1.2: url, \"URL of the protected resource\"",
+            "ambiguity": "the spec does not say whether url must equal the request URL byte for byte; the tool reports the relation"
+          },
+          "verdict": "info",
+          "detail": "resource.url equals the request URL: http://x402-local.oto.tools:8090/report",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-016",
+            "title": "ResourceInfo optional fields respect their bounds (serviceName, tags, iconUrl, description, mimeType)",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: serviceName printable ASCII max 32; tags max 5, each printable ASCII max 32; iconUrl absolute http(s) max 2048",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "within bounds",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-006",
+            "title": "PaymentRequired.extensions, when present, is an object",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: extensions, object, Optional",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "extensions is an object",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-019",
+            "title": "every advertised extension is an object with info and schema objects",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: Extensions table, info object Required, schema object Required",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "advertised: payment-identifier, sign-in-with-x, bazaar",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "BAZAAR-SCHEMA-REFS",
+            "title": "an extension schema uses only same-document references",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "extensions/bazaar.md, Schema Validation: \"$ref and $id values must be same-document JSON Pointer fragments (starting with #); external references ... are not allowed\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "no external $ref or $id",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-019v",
+            "title": "an extension's info validates against its own schema",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.1.2: schema \"JSON Schema defining the expected structure of info\"; extensions/bazaar.md: \"Facilitators must validate info against schema before cataloging\"",
+            "ambiguity": "the core text defines schema as describing info; a server whose info fails its own schema advertises something no facilitator would catalog. Sign-In with X is excluded: its example schema describes the client's proof, not the challenge"
+          },
+          "verdict": "pass",
+          "detail": "2 extension(s) validated",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "BAZAAR-INPUT",
+            "title": "bazaar info.input follows the http or mcp structure of the spec",
+            "level": "required",
+            "source": "field-table",
+            "clause": "extensions/bazaar.md, Discovery Info Structure: input.type http with method GET/HEAD/DELETE, or POST/PUT/PATCH with bodyType (json, form-data, text) and body; input.type mcp with toolName and inputSchema",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "input.type http, method GET",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "BAZAAR-OUTPUT",
+            "title": "bazaar info.output, when present, has a string type",
+            "level": "required",
+            "source": "field-table",
+            "clause": "extensions/bazaar.md, Output Types: type string Yes; format string No; example any No",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "output = {\"type\":\"text\"}",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "BAZAAR-SCHEMA",
+            "title": "the bazaar schema requires input and actually constrains input.type, the HTTP method or the MCP fields",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "extensions/bazaar.md, Schema Validation: \"Must use JSON Schema Draft 2020-12\", \"Must define an input property (required)\", \"Must validate that input.type equals http ... or mcp\", \"Must validate the appropriate method enum\", \"Must require toolName and inputSchema\"",
+            "ambiguity": "the constraints are checked by asking the schema to reject counter-examples (a foreign input.type, a method outside the enum, an mcp input without toolName or inputSchema): what the schema accepts, it does not constrain"
+          },
+          "verdict": "pass",
+          "detail": "info accepted; the schema rejects the counter-examples tried (info without input, a foreign input.type, a method outside the HTTP enum); nothing more is claimed about the schema",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "BAZAAR-META",
+            "title": "service metadata on resource survives the facilitator's soft-drop rules",
+            "level": "recommended",
+            "source": "explicit-must",
+            "clause": "extensions/bazaar.md, Service Metadata Validation Rules: serviceName printable ASCII non-empty, at most 32; tags at most 5, each printable ASCII non-empty at most 32, deduplicated case-insensitively; iconUrl absolute http(s), no userinfo, not an IP literal or localhost, at most 2048",
+            "ambiguity": "the core bounds are CORE-016 (required); these are the stricter Bazaar drop rules, so the tool warns when a field would be dropped from the catalogue"
+          },
+          "verdict": "pass",
+          "detail": "would be kept by a facilitator",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "PAYID-INFO",
+            "title": "payment-identifier info.required, when present, is a boolean",
+            "level": "required",
+            "source": "field-table",
+            "clause": "extensions/payment_identifier.md, `required` Field: Type boolean, Default false",
+            "ambiguity": "the example schema lists required among its required members while the field table gives it a default; an absent value is read as false, not as a failure"
+          },
+          "verdict": "pass",
+          "detail": "info.required = false",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "PAYID-SCHEMA",
+            "title": "how the payment-identifier schema expresses the 16..128 character bound on id",
+            "level": "optional",
+            "source": "example",
+            "clause": "extensions/payment_identifier.md, `id` Format: Length 16-128 characters; the example schema uses minLength 16 and maxLength 128",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "minLength 16, maxLength 128 as in the example",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-005",
+            "title": "PaymentRequired.accepts is an array",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: accepts, array, Required",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "accepts is an array",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-005e",
+            "title": "accepts offers at least one payment method",
+            "level": "recommended",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.1.2: \"Array of payment requirement objects defining acceptable payment methods\"",
+            "ambiguity": "the text does not forbid an empty array; a 402 without any offer cannot be paid, so the tool warns"
+          },
+          "verdict": "pass",
+          "detail": "2 offer(s)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-007",
+            "title": "every accepts[] entry has scheme, network, amount, asset, payTo (strings) and maxTimeoutSeconds (number)",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: PaymentRequirements table, all six Required; extra, object, Optional",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "2 offer(s) well-formed",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-008",
+            "title": "every accepts[].network is a CAIP-2 identifier",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: network, \"Blockchain network identifier in CAIP-2 format\"; 11.1 \"{namespace}:{reference}\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "all CAIP-2 (2 checked)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-009",
+            "title": "every accepts[].amount is a decimal integer string of atomic units",
+            "level": "required",
+            "source": "field-table",
+            "clause": "x402-specification-v2.md 5.1.2: amount, string, \"Required payment amount in atomic token units\"",
+            "ambiguity": "no grammar is given; a non-negative decimal integer is the only reading consistent with the examples"
+          },
+          "verdict": "pass",
+          "detail": "all decimal integers (2 checked)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-042",
+            "title": "reserved extra keys carry their section 6.1 meaning: paymentFlow is authorization, upfront or escrow; assetTransferMethod is a string",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 6.1: \"clients and servers MUST interpret them as defined here\"; flow table",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "reserved keys absent or valid",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "EVM-012",
+            "title": "exact offers on eip155 networks carry extra.name and extra.version (EIP-712 domain of the token)",
+            "level": "required",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_evm.md 1: \"extra.name (required)\", \"extra.version (required)\" for eip3009",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "name and version present (1 eip3009 offer(s))",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-010e",
+            "title": "exact offers on eip155 networks have 20-byte hex asset and payTo addresses",
+            "level": "required",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 5.1.2: asset \"Token contract address\", payTo \"Recipient wallet address\"; EVM binding uses them as contract and recipient",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "asset and payTo are addresses (1 offer(s))",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "EVM-004i",
+            "title": "asset transfer methods offered on eip155 networks",
+            "level": "optional",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_evm.md: eip3009 (default), permit2, erc7710",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "accepts[0]: eip3009 (default)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "SVM-001",
+            "title": "exact offers on solana networks carry extra.feePayer, the sponsor's public key",
+            "level": "required",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_svm.md, Protocol Flow 2: \"The extra field contains a feePayer, identifying the sponsor\"; PaymentRequirements: \"requires the following inside the extra field\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "1 solana offer(s), each with a base58 fee payer",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "SVM-004",
+            "title": "exact offers on solana networks have base58 32-byte asset (mint) and payTo (merchant) public keys",
+            "level": "required",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_svm.md, PaymentRequirements: \"asset: The public key of the token mint\", \"payTo: The merchant's public key\"; external basis: Solana public keys and program-derived addresses are 32 bytes, written in base58",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "base58 32-byte mint and merchant keys",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "SVM-002",
+            "title": "the optional extra hints of exact on solana are well formed when present: memo (UTF-8, 256 bytes max), recentBlockhash (base58 32 bytes), lastValidBlockHeight (decimal string)",
+            "level": "recommended",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_svm.md, PaymentRequirements: memo \"Maximum 256 bytes\"; recentBlockhash \"A recent blockhash\"; lastValidBlockHeight \"as a decimal string\"",
+            "ambiguity": "the fields are optional and only their shape when present is looked at; the spec gives the client a fallback for a malformed blockhash and lets everyone ignore the height, so a bad hint is a warning, not a failure"
+          },
+          "verdict": "pass",
+          "detail": "hints absent or well formed",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "SVM-003",
+            "title": "payment flow offered on solana networks",
+            "level": "optional",
+            "source": "prose",
+            "clause": "schemes/exact/scheme_exact_svm.md, Protocol Flow: \"Resource servers with long-running handlers SHOULD use payment flow upfront, because under authorization the handler must complete before the signed transaction's blockhash expires\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "accepts[1]: authorization (default)",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-009",
+            "title": "the 402 body (free for the server to choose)",
+            "level": "optional",
+            "source": "prose",
+            "clause": "transports-v2/http.md, Response Body: \"Response bodies are a server implementation concern\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "669 bytes, content-type application/json",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "PROBE-CORS",
+            "title": "browser clients can read the x402 headers (Access-Control-Expose-Headers)",
+            "level": "optional",
+            "source": "prose",
+            "clause": "not a spec clause; needed only by browser clients",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "exposed: PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+          "evidence": [
+            0
+          ]
+        },
+        {
+          "check": {
+            "id": "PROBE-STABLE",
+            "title": "two consecutive unpaid requests receive the same accepts[]",
+            "level": "optional",
+            "source": "prose",
+            "clause": "not a spec clause; a client that reads the terms then pays relies on it",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "same accepts[] on both requests",
+          "evidence": [
+            0,
+            1
+          ]
+        },
+        {
+          "check": {
+            "id": "HTTP-010",
+            "title": "a malformed PAYMENT-SIGNATURE never gets the resource (no 2xx) and is not a server error (no 5xx)",
+            "level": "required",
+            "source": "field-table",
+            "clause": "transports-v2/http.md, Error Handling: Invalid Payment 400 \"Malformed payment payload\"; Payment Failed 402; Server Error 500 \"during payment processing\"",
+            "ambiguity": null
+          },
+          "verdict": "pass",
+          "detail": "5 malformed values, none served, none 5xx",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "HTTP-010s",
+            "title": "a malformed PAYMENT-SIGNATURE is answered with status 400",
+            "level": "recommended",
+            "source": "field-table",
+            "clause": "transports-v2/http.md, Error Handling: \"Invalid Payment | 400 | Malformed payment payload or requirements\"",
+            "ambiguity": "the same table maps Payment Failed to 402, so a 402 with a fresh challenge is defensible; the tool warns rather than fails"
+          },
+          "verdict": "pass",
+          "detail": "all 5 answered 400",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "CORE-070",
+            "title": "error reasons given on refusals",
+            "level": "optional",
+            "source": "prose",
+            "clause": "x402-specification-v2.md 9: standard codes \"may be returned by facilitators or resource servers\"",
+            "ambiguity": null
+          },
+          "verdict": "info",
+          "detail": "not base64: invalid_payment; base64 of plain text: invalid_payment; base64 of an empty object: invalid_payment; accepted matching no offer (amount changed): invalid_payment; unknown scheme: invalid_payment",
+          "evidence": []
+        },
+        {
+          "check": {
+            "id": "PROBE-V1",
+            "title": "how a payload marked x402Version 1 is treated",
+            "level": "optional",
+            "source": "policy",
+            "clause": "x402-specification-v2.md 5.2.2: x402Version Required; a v2 server may also keep accepting v1 payloads for compatibility, which the v2 text neither requires nor forbids",
+            "ambiguity": "not judged: the core text makes x402Version an identifier and invalid_x402_version a code for an unsupported version, without forbidding an endpoint that serves several versions; what happened is reported"
+          },
+          "verdict": "info",
+          "detail": "status 402, reason invalid_x402_version",
+          "evidence": [
+            7
+          ]
+        },
+        {
+          "check": {
+            "id": "CORE-054z",
+            "title": "a payment that cannot be valid (zero signature) never yields the resource",
+            "level": "required",
+            "source": "explicit-must",
+            "clause": "x402-specification-v2.md 6.1: \"at least one check ... MUST run before the resource executes. The resource never executes with nothing checked\"",
+            "ambiguity": null
+          },
+          "verdict": "fail",
+          "detail": "status 200 with a success receipt: either the server skipped verification or its facilitator accepted a zero signature; the headers alone do not tell which",
+          "evidence": [
+            8
+          ],
+          "attribution": "unknown"
+        }
+      ],
+      "traces": []
+    }
+  ],
+  "exchanges": [
+    {
+      "seq": 1,
+      "label": "unpaid request",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {},
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "669",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0IiwiZGVzY3JpcHRpb24iOiJXaXRuZXNzIGJhY2tlbmQgb2YgeDQwMi1jb25mb3JtYW5jZSIsIm1pbWVUeXBlIjoidGV4dC9tYXJrZG93biIsInNlcnZpY2VOYW1lIjoieDQwMi1sb2NhbCIsInRhZ3MiOlsibWFya2Rvd24iLCJzY3JhcGluZyJdfSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiIyd0t1cExSOXE2d1hZcHB3OEdyMk52V3hLQlVxbTRQUEpLa1Fmb3hIREJnNCIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsiZmVlUGF5ZXIiOiJFd1dxR0U0WkZLTG9mdWVzdG1VNExEZEs3WE0xTjRBTGdkWmNjd1l1Z3dHZCJ9fV0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoieDQwMi1sb2NhbC5vdG8udG9vbHM6ODA5MCIsInVyaSI6Imh0dHA6Ly94NDAyLWxvY2FsLm90by50b29sczo4MDkwL3JlcG9ydCIsInZlcnNpb24iOiIxIiwibm9uY2UiOiJlYzIzM2VmNGQ5MTYyZGEyNmVlZmY3NzEwY2VhZWEwMSIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMlQwNzo1MDo0Ni4wNTZaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIyVDA3OjU1OjQ2LjA1NloiLCJyZXNvdXJjZXMiOlsiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0Il0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fSwiYmF6YWFyIjp7ImluZm8iOnsiaW5wdXQiOnsidHlwZSI6Imh0dHAiLCJtZXRob2QiOiJHRVQiLCJxdWVyeVBhcmFtcyI6eyJmb3JtYXQiOiJtZCJ9fSwib3V0cHV0Ijp7InR5cGUiOiJ0ZXh0In19LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIiwiY29uc3QiOiJodHRwIn0sImhlYWRlcnMiOnsidHlwZSI6Im9iamVjdCIsImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjp7InR5cGUiOiJzdHJpbmcifX0sIm1ldGhvZCI6eyJ0eXBlIjoic3RyaW5nIiwiZW51bSI6WyJHRVQiLCJIRUFEIiwiREVMRVRFIl19LCJxdWVyeVBhcmFtcyI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJmb3JtYXQiOnsidHlwZSI6InN0cmluZyJ9fSwicmVxdWlyZWQiOlsiZm9ybWF0Il19fSwicmVxdWlyZWQiOlsidHlwZSIsIm1ldGhvZCJdLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6ZmFsc2V9LCJvdXRwdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIn0sImV4YW1wbGUiOnt9fSwicmVxdWlyZWQiOlsidHlwZSJdfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19"
+      },
+      "body": {
+        "text": "{\"error\":\"payment required\",\"message\":\"Retry with a PAYMENT-SIGNATURE header built from the PAYMENT-REQUIRED header of this response.\",\"accepts\":[{\"network\":\"eip155:84532\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"price\":\"0.01\",\"amount\":\"10000\"},{\"network\":\"solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1\",\"asset\":\"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU\",\"price\":\"0.01\",\"amount\":\"10000\"}],\"pass\":{\"price\":\"1\",\"ttl_seconds\":3600,\"purchase\":{\"method\":\"POST\",\"url\":\"http://x402-local.oto.tools:8090/.well-known/otoroshi/x402/pass\"},\"present_as\":[\"SIGN-IN-WITH-X header (x402 sign-in-with-x extension)\",\"Otoroshi-X402-Pass header (token returned at purchase)\"]}}",
+        "truncated": false
+      },
+      "elapsed_ms": 173,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0IiwiZGVzY3JpcHRpb24iOiJXaXRuZXNzIGJhY2tlbmQgb2YgeDQwMi1jb25mb3JtYW5jZSIsIm1pbWVUeXBlIjoidGV4dC9tYXJrZG93biIsInNlcnZpY2VOYW1lIjoieDQwMi1sb2NhbCIsInRhZ3MiOlsibWFya2Rvd24iLCJzY3JhcGluZyJdfSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiIyd0t1cExSOXE2d1hZcHB3OEdyMk52V3hLQlVxbTRQUEpLa1Fmb3hIREJnNCIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsiZmVlUGF5ZXIiOiJFd1dxR0U0WkZLTG9mdWVzdG1VNExEZEs3WE0xTjRBTGdkWmNjd1l1Z3dHZCJ9fV0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoieDQwMi1sb2NhbC5vdG8udG9vbHM6ODA5MCIsInVyaSI6Imh0dHA6Ly94NDAyLWxvY2FsLm90by50b29sczo4MDkwL3JlcG9ydCIsInZlcnNpb24iOiIxIiwibm9uY2UiOiJlYzIzM2VmNGQ5MTYyZGEyNmVlZmY3NzEwY2VhZWEwMSIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMlQwNzo1MDo0Ni4wNTZaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIyVDA3OjU1OjQ2LjA1NloiLCJyZXNvdXJjZXMiOlsiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0Il0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fSwiYmF6YWFyIjp7ImluZm8iOnsiaW5wdXQiOnsidHlwZSI6Imh0dHAiLCJtZXRob2QiOiJHRVQiLCJxdWVyeVBhcmFtcyI6eyJmb3JtYXQiOiJtZCJ9fSwib3V0cHV0Ijp7InR5cGUiOiJ0ZXh0In19LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIiwiY29uc3QiOiJodHRwIn0sImhlYWRlcnMiOnsidHlwZSI6Im9iamVjdCIsImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjp7InR5cGUiOiJzdHJpbmcifX0sIm1ldGhvZCI6eyJ0eXBlIjoic3RyaW5nIiwiZW51bSI6WyJHRVQiLCJIRUFEIiwiREVMRVRFIl19LCJxdWVyeVBhcmFtcyI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJmb3JtYXQiOnsidHlwZSI6InN0cmluZyJ9fSwicmVxdWlyZWQiOlsiZm9ybWF0Il19fSwicmVxdWlyZWQiOlsidHlwZSIsIm1ldGhvZCJdLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6ZmFsc2V9LCJvdXRwdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIn0sImV4YW1wbGUiOnt9fSwicmVxdWlyZWQiOlsidHlwZSJdfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "x402Version": 2,
+          "resource": {
+            "url": "http://x402-local.oto.tools:8090/report",
+            "description": "Witness backend of x402-conformance",
+            "mimeType": "text/markdown",
+            "serviceName": "x402-local",
+            "tags": [
+              "markdown",
+              "scraping"
+            ]
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "10000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "10000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "feePayer": "EwWqGE4ZFKLofuestmU4LDdK7XM1N4ALgdZccwYugwGd"
+              }
+            }
+          ],
+          "extensions": {
+            "payment-identifier": {
+              "info": {
+                "required": false
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "required"
+                ]
+              }
+            },
+            "sign-in-with-x": {
+              "info": {
+                "domain": "x402-local.oto.tools:8090",
+                "uri": "http://x402-local.oto.tools:8090/report",
+                "version": "1",
+                "nonce": "ec233ef4d9162da26eeff7710ceaea01",
+                "issuedAt": "2026-09-22T07:50:46.056Z",
+                "expirationTime": "2026-09-22T07:55:46.056Z",
+                "resources": [
+                  "http://x402-local.oto.tools:8090/report"
+                ],
+                "statement": "Use my prepaid site2md pass."
+              },
+              "supportedChains": [
+                {
+                  "chainId": "eip155:84532",
+                  "type": "eip191"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "required": [
+                  "domain",
+                  "address",
+                  "uri",
+                  "version",
+                  "chainId",
+                  "type",
+                  "nonce",
+                  "issuedAt",
+                  "signature"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "chainId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "issuedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expirationTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notBefore": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "bazaar": {
+              "info": {
+                "input": {
+                  "type": "http",
+                  "method": "GET",
+                  "queryParams": {
+                    "format": "md"
+                  }
+                },
+                "output": {
+                  "type": "text"
+                }
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "http"
+                      },
+                      "headers": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "GET",
+                          "HEAD",
+                          "DELETE"
+                        ]
+                      },
+                      "queryParams": {
+                        "type": "object",
+                        "properties": {
+                          "format": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "format"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "method"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "output": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "example": {}
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  }
+                },
+                "required": [
+                  "input"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "seq": 2,
+      "label": "unpaid request, again",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {},
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "669",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0IiwiZGVzY3JpcHRpb24iOiJXaXRuZXNzIGJhY2tlbmQgb2YgeDQwMi1jb25mb3JtYW5jZSIsIm1pbWVUeXBlIjoidGV4dC9tYXJrZG93biIsInNlcnZpY2VOYW1lIjoieDQwMi1sb2NhbCIsInRhZ3MiOlsibWFya2Rvd24iLCJzY3JhcGluZyJdfSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiIyd0t1cExSOXE2d1hZcHB3OEdyMk52V3hLQlVxbTRQUEpLa1Fmb3hIREJnNCIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsiZmVlUGF5ZXIiOiJFd1dxR0U0WkZLTG9mdWVzdG1VNExEZEs3WE0xTjRBTGdkWmNjd1l1Z3dHZCJ9fV0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoieDQwMi1sb2NhbC5vdG8udG9vbHM6ODA5MCIsInVyaSI6Imh0dHA6Ly94NDAyLWxvY2FsLm90by50b29sczo4MDkwL3JlcG9ydCIsInZlcnNpb24iOiIxIiwibm9uY2UiOiIzNmYwYzIxMDEzNGMzNWYwODkxZmVjZGYyNDYxZGJkYiIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMlQwNzo1MDo0Ni4xMDVaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIyVDA3OjU1OjQ2LjEwNVoiLCJyZXNvdXJjZXMiOlsiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0Il0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fSwiYmF6YWFyIjp7ImluZm8iOnsiaW5wdXQiOnsidHlwZSI6Imh0dHAiLCJtZXRob2QiOiJHRVQiLCJxdWVyeVBhcmFtcyI6eyJmb3JtYXQiOiJtZCJ9fSwib3V0cHV0Ijp7InR5cGUiOiJ0ZXh0In19LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIiwiY29uc3QiOiJodHRwIn0sImhlYWRlcnMiOnsidHlwZSI6Im9iamVjdCIsImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjp7InR5cGUiOiJzdHJpbmcifX0sIm1ldGhvZCI6eyJ0eXBlIjoic3RyaW5nIiwiZW51bSI6WyJHRVQiLCJIRUFEIiwiREVMRVRFIl19LCJxdWVyeVBhcmFtcyI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJmb3JtYXQiOnsidHlwZSI6InN0cmluZyJ9fSwicmVxdWlyZWQiOlsiZm9ybWF0Il19fSwicmVxdWlyZWQiOlsidHlwZSIsIm1ldGhvZCJdLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6ZmFsc2V9LCJvdXRwdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIn0sImV4YW1wbGUiOnt9fSwicmVxdWlyZWQiOlsidHlwZSJdfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19"
+      },
+      "body": {
+        "text": "{\"error\":\"payment required\",\"message\":\"Retry with a PAYMENT-SIGNATURE header built from the PAYMENT-REQUIRED header of this response.\",\"accepts\":[{\"network\":\"eip155:84532\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"price\":\"0.01\",\"amount\":\"10000\"},{\"network\":\"solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1\",\"asset\":\"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU\",\"price\":\"0.01\",\"amount\":\"10000\"}],\"pass\":{\"price\":\"1\",\"ttl_seconds\":3600,\"purchase\":{\"method\":\"POST\",\"url\":\"http://x402-local.oto.tools:8090/.well-known/otoroshi/x402/pass\"},\"present_as\":[\"SIGN-IN-WITH-X header (x402 sign-in-with-x extension)\",\"Otoroshi-X402-Pass header (token returned at purchase)\"]}}",
+        "truncated": false
+      },
+      "elapsed_ms": 20,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0IiwiZGVzY3JpcHRpb24iOiJXaXRuZXNzIGJhY2tlbmQgb2YgeDQwMi1jb25mb3JtYW5jZSIsIm1pbWVUeXBlIjoidGV4dC9tYXJrZG93biIsInNlcnZpY2VOYW1lIjoieDQwMi1sb2NhbCIsInRhZ3MiOlsibWFya2Rvd24iLCJzY3JhcGluZyJdfSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiIyd0t1cExSOXE2d1hZcHB3OEdyMk52V3hLQlVxbTRQUEpLa1Fmb3hIREJnNCIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsiZmVlUGF5ZXIiOiJFd1dxR0U0WkZLTG9mdWVzdG1VNExEZEs3WE0xTjRBTGdkWmNjd1l1Z3dHZCJ9fV0sImV4dGVuc2lvbnMiOnsicGF5bWVudC1pZGVudGlmaWVyIjp7ImluZm8iOnsicmVxdWlyZWQiOmZhbHNlfSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InJlcXVpcmVkIjp7InR5cGUiOiJib29sZWFuIn0sImlkIjp7InR5cGUiOiJzdHJpbmciLCJtaW5MZW5ndGgiOjE2LCJtYXhMZW5ndGgiOjEyOH19LCJyZXF1aXJlZCI6WyJyZXF1aXJlZCJdfX0sInNpZ24taW4td2l0aC14Ijp7ImluZm8iOnsiZG9tYWluIjoieDQwMi1sb2NhbC5vdG8udG9vbHM6ODA5MCIsInVyaSI6Imh0dHA6Ly94NDAyLWxvY2FsLm90by50b29sczo4MDkwL3JlcG9ydCIsInZlcnNpb24iOiIxIiwibm9uY2UiOiIzNmYwYzIxMDEzNGMzNWYwODkxZmVjZGYyNDYxZGJkYiIsImlzc3VlZEF0IjoiMjAyNi0wOS0yMlQwNzo1MDo0Ni4xMDVaIiwiZXhwaXJhdGlvblRpbWUiOiIyMDI2LTA5LTIyVDA3OjU1OjQ2LjEwNVoiLCJyZXNvdXJjZXMiOlsiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0Il0sInN0YXRlbWVudCI6IlVzZSBteSBwcmVwYWlkIHNpdGUybWQgcGFzcy4ifSwic3VwcG9ydGVkQ2hhaW5zIjpbeyJjaGFpbklkIjoiZWlwMTU1Ojg0NTMyIiwidHlwZSI6ImVpcDE5MSJ9XSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJyZXF1aXJlZCI6WyJkb21haW4iLCJhZGRyZXNzIiwidXJpIiwidmVyc2lvbiIsImNoYWluSWQiLCJ0eXBlIiwibm9uY2UiLCJpc3N1ZWRBdCIsInNpZ25hdHVyZSJdLCJwcm9wZXJ0aWVzIjp7ImRvbWFpbiI6eyJ0eXBlIjoic3RyaW5nIn0sImFkZHJlc3MiOnsidHlwZSI6InN0cmluZyJ9LCJzdGF0ZW1lbnQiOnsidHlwZSI6InN0cmluZyJ9LCJ1cmkiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9LCJ2ZXJzaW9uIjp7InR5cGUiOiJzdHJpbmcifSwiY2hhaW5JZCI6eyJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJub25jZSI6eyJ0eXBlIjoic3RyaW5nIn0sImlzc3VlZEF0Ijp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwiZXhwaXJhdGlvblRpbWUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJub3RCZWZvcmUiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6ImRhdGUtdGltZSJ9LCJyZXF1ZXN0SWQiOnsidHlwZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOnsidHlwZSI6ImFycmF5IiwiaXRlbXMiOnsidHlwZSI6InN0cmluZyIsImZvcm1hdCI6InVyaSJ9fSwic2lnbmF0dXJlIjp7InR5cGUiOiJzdHJpbmcifX19fSwiYmF6YWFyIjp7ImluZm8iOnsiaW5wdXQiOnsidHlwZSI6Imh0dHAiLCJtZXRob2QiOiJHRVQiLCJxdWVyeVBhcmFtcyI6eyJmb3JtYXQiOiJtZCJ9fSwib3V0cHV0Ijp7InR5cGUiOiJ0ZXh0In19LCJzY2hlbWEiOnsiJHNjaGVtYSI6Imh0dHBzOi8vanNvbi1zY2hlbWEub3JnL2RyYWZ0LzIwMjAtMTIvc2NoZW1hIiwidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiaW5wdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIiwiY29uc3QiOiJodHRwIn0sImhlYWRlcnMiOnsidHlwZSI6Im9iamVjdCIsImFkZGl0aW9uYWxQcm9wZXJ0aWVzIjp7InR5cGUiOiJzdHJpbmcifX0sIm1ldGhvZCI6eyJ0eXBlIjoic3RyaW5nIiwiZW51bSI6WyJHRVQiLCJIRUFEIiwiREVMRVRFIl19LCJxdWVyeVBhcmFtcyI6eyJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJmb3JtYXQiOnsidHlwZSI6InN0cmluZyJ9fSwicmVxdWlyZWQiOlsiZm9ybWF0Il19fSwicmVxdWlyZWQiOlsidHlwZSIsIm1ldGhvZCJdLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6ZmFsc2V9LCJvdXRwdXQiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsidHlwZSI6eyJ0eXBlIjoic3RyaW5nIn0sImV4YW1wbGUiOnt9fSwicmVxdWlyZWQiOlsidHlwZSJdfX0sInJlcXVpcmVkIjpbImlucHV0Il19fX19",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "x402Version": 2,
+          "resource": {
+            "url": "http://x402-local.oto.tools:8090/report",
+            "description": "Witness backend of x402-conformance",
+            "mimeType": "text/markdown",
+            "serviceName": "x402-local",
+            "tags": [
+              "markdown",
+              "scraping"
+            ]
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "10000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "10000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "feePayer": "EwWqGE4ZFKLofuestmU4LDdK7XM1N4ALgdZccwYugwGd"
+              }
+            }
+          ],
+          "extensions": {
+            "payment-identifier": {
+              "info": {
+                "required": false
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "required"
+                ]
+              }
+            },
+            "sign-in-with-x": {
+              "info": {
+                "domain": "x402-local.oto.tools:8090",
+                "uri": "http://x402-local.oto.tools:8090/report",
+                "version": "1",
+                "nonce": "36f0c210134c35f0891fecdf2461dbdb",
+                "issuedAt": "2026-09-22T07:50:46.105Z",
+                "expirationTime": "2026-09-22T07:55:46.105Z",
+                "resources": [
+                  "http://x402-local.oto.tools:8090/report"
+                ],
+                "statement": "Use my prepaid site2md pass."
+              },
+              "supportedChains": [
+                {
+                  "chainId": "eip155:84532",
+                  "type": "eip191"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "required": [
+                  "domain",
+                  "address",
+                  "uri",
+                  "version",
+                  "chainId",
+                  "type",
+                  "nonce",
+                  "issuedAt",
+                  "signature"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "chainId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "issuedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expirationTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notBefore": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "bazaar": {
+              "info": {
+                "input": {
+                  "type": "http",
+                  "method": "GET",
+                  "queryParams": {
+                    "format": "md"
+                  }
+                },
+                "output": {
+                  "type": "text"
+                }
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "http"
+                      },
+                      "headers": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "GET",
+                          "HEAD",
+                          "DELETE"
+                        ]
+                      },
+                      "queryParams": {
+                        "type": "object",
+                        "properties": {
+                          "format": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "format"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "method"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "output": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "example": {}
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  }
+                },
+                "required": [
+                  "input"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "seq": 3,
+      "label": "malformed PAYMENT-SIGNATURE: not base64",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {
+        "payment-signature": "this is not base64!"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 400,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "88",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT"
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_payment\",\"message\":\"PAYMENT-SIGNATURE: header is not standard base64\"}",
+        "truncated": false
+      },
+      "elapsed_ms": 5
+    },
+    {
+      "seq": 4,
+      "label": "malformed PAYMENT-SIGNATURE: base64 of plain text",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {
+        "payment-signature": "cGxhaW4gdGV4dA=="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 400,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "96",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT"
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_payment\",\"message\":\"PAYMENT-SIGNATURE: header does not carry a JSON document\"}",
+        "truncated": false
+      },
+      "elapsed_ms": 8
+    },
+    {
+      "seq": 5,
+      "label": "malformed PAYMENT-SIGNATURE: base64 of an empty object",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {
+        "payment-signature": "e30="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 400,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "78",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT"
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_payment\",\"message\":\"PAYMENT-SIGNATURE: missing x402Version\"}",
+        "truncated": false
+      },
+      "elapsed_ms": 6
+    },
+    {
+      "seq": 6,
+      "label": "malformed PAYMENT-SIGNATURE: accepted matching no offer (amount changed)",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAxIiwiYXNzZXQiOiIweDAzNkNiRDUzODQyYzU0MjY2MzRlNzkyOTU0MWVDMjMxOGYzZENGN2UiLCJwYXlUbyI6IjB4MjA5NjkzQmM2YWZjMEM1MzI4YkEzNkZhRjAzQzUxNEVGMzEyMjg3QyIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsibmFtZSI6IlVTREMiLCJ2ZXJzaW9uIjoiMiJ9fSwicGF5bG9hZCI6eyJzaWduYXR1cmUiOiIweDAwIiwiYXV0aG9yaXphdGlvbiI6e319fQ=="
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 400,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "166",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT"
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_payment\",\"message\":\"PAYMENT-SIGNATURE: unsupported payload for eip155:84532: an EIP-3009 authorization (EVM) or a transaction (Solana) is expected\"}",
+        "truncated": false
+      },
+      "elapsed_ms": 5
+    },
+    {
+      "seq": 7,
+      "label": "malformed PAYMENT-SIGNATURE: unknown scheme",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoibm8tc3VjaC1zY2hlbWUiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4MDAiLCJhdXRob3JpemF0aW9uIjp7fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 400,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "166",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT"
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_payment\",\"message\":\"PAYMENT-SIGNATURE: unsupported payload for eip155:84532: an EIP-3009 authorization (EVM) or a transaction (Solana) is expected\"}",
+        "truncated": false
+      },
+      "elapsed_ms": 4
+    },
+    {
+      "seq": 8,
+      "label": "payload marked x402Version 1",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MSwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4MDAiLCJhdXRob3JpemF0aW9uIjp7fX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 402,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "no-store",
+        "content-length": "673",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT",
+        "payment-required": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0IiwiZGVzY3JpcHRpb24iOiJXaXRuZXNzIGJhY2tlbmQgb2YgeDQwMi1jb25mb3JtYW5jZSIsIm1pbWVUeXBlIjoidGV4dC9tYXJrZG93biIsInNlcnZpY2VOYW1lIjoieDQwMi1sb2NhbCIsInRhZ3MiOlsibWFya2Rvd24iLCJzY3JhcGluZyJdfSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiIyd0t1cExSOXE2d1hZcHB3OEdyMk52V3hLQlVxbTRQUEpLa1Fmb3hIREJnNCIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsiZmVlUGF5ZXIiOiJFd1dxR0U0WkZLTG9mdWVzdG1VNExEZEs3WE0xTjRBTGdkWmNjd1l1Z3dHZCJ9fV0sImVycm9yIjoiaW52YWxpZF94NDAyX3ZlcnNpb24iLCJleHRlbnNpb25zIjp7InBheW1lbnQtaWRlbnRpZmllciI6eyJpbmZvIjp7InJlcXVpcmVkIjpmYWxzZX0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJyZXF1aXJlZCI6eyJ0eXBlIjoiYm9vbGVhbiJ9LCJpZCI6eyJ0eXBlIjoic3RyaW5nIiwibWluTGVuZ3RoIjoxNiwibWF4TGVuZ3RoIjoxMjh9fSwicmVxdWlyZWQiOlsicmVxdWlyZWQiXX19LCJzaWduLWluLXdpdGgteCI6eyJpbmZvIjp7ImRvbWFpbiI6Ing0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAiLCJ1cmkiOiJodHRwOi8veDQwMi1sb2NhbC5vdG8udG9vbHM6ODA5MC9yZXBvcnQiLCJ2ZXJzaW9uIjoiMSIsIm5vbmNlIjoiODlmMTc3MjQzZTc4NGY3NmVlMjFmZmJjYWRmMzY1YzYiLCJpc3N1ZWRBdCI6IjIwMjYtMDktMjJUMDc6NTA6NDYuMTQzWiIsImV4cGlyYXRpb25UaW1lIjoiMjAyNi0wOS0yMlQwNzo1NTo0Ni4xNDNaIiwicmVzb3VyY2VzIjpbImh0dHA6Ly94NDAyLWxvY2FsLm90by50b29sczo4MDkwL3JlcG9ydCJdLCJzdGF0ZW1lbnQiOiJVc2UgbXkgcHJlcGFpZCBzaXRlMm1kIHBhc3MuIn0sInN1cHBvcnRlZENoYWlucyI6W3siY2hhaW5JZCI6ImVpcDE1NTo4NDUzMiIsInR5cGUiOiJlaXAxOTEifV0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicmVxdWlyZWQiOlsiZG9tYWluIiwiYWRkcmVzcyIsInVyaSIsInZlcnNpb24iLCJjaGFpbklkIiwidHlwZSIsIm5vbmNlIiwiaXNzdWVkQXQiLCJzaWduYXR1cmUiXSwicHJvcGVydGllcyI6eyJkb21haW4iOnsidHlwZSI6InN0cmluZyJ9LCJhZGRyZXNzIjp7InR5cGUiOiJzdHJpbmcifSwic3RhdGVtZW50Ijp7InR5cGUiOiJzdHJpbmcifSwidXJpIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwidmVyc2lvbiI6eyJ0eXBlIjoic3RyaW5nIn0sImNoYWluSWQiOnsidHlwZSI6InN0cmluZyJ9LCJ0eXBlIjp7InR5cGUiOiJzdHJpbmcifSwibm9uY2UiOnsidHlwZSI6InN0cmluZyJ9LCJpc3N1ZWRBdCI6eyJ0eXBlIjoic3RyaW5nIiwiZm9ybWF0IjoiZGF0ZS10aW1lIn0sImV4cGlyYXRpb25UaW1lIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwibm90QmVmb3JlIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwicmVxdWVzdElkIjp7InR5cGUiOiJzdHJpbmcifSwicmVzb3VyY2VzIjp7InR5cGUiOiJhcnJheSIsIml0ZW1zIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifX0sInNpZ25hdHVyZSI6eyJ0eXBlIjoic3RyaW5nIn19fX0sImJhemFhciI6eyJpbmZvIjp7ImlucHV0Ijp7InR5cGUiOiJodHRwIiwibWV0aG9kIjoiR0VUIiwicXVlcnlQYXJhbXMiOnsiZm9ybWF0IjoibWQifX0sIm91dHB1dCI6eyJ0eXBlIjoidGV4dCJ9fSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7ImlucHV0Ijp7InR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InR5cGUiOnsidHlwZSI6InN0cmluZyIsImNvbnN0IjoiaHR0cCJ9LCJoZWFkZXJzIjp7InR5cGUiOiJvYmplY3QiLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6eyJ0eXBlIjoic3RyaW5nIn19LCJtZXRob2QiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsiR0VUIiwiSEVBRCIsIkRFTEVURSJdfSwicXVlcnlQYXJhbXMiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiZm9ybWF0Ijp7InR5cGUiOiJzdHJpbmcifX0sInJlcXVpcmVkIjpbImZvcm1hdCJdfX0sInJlcXVpcmVkIjpbInR5cGUiLCJtZXRob2QiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfSwib3V0cHV0Ijp7InR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJleGFtcGxlIjp7fX0sInJlcXVpcmVkIjpbInR5cGUiXX19LCJyZXF1aXJlZCI6WyJpbnB1dCJdfX19fQ=="
+      },
+      "body": {
+        "text": "{\"error\":\"invalid_x402_version\",\"message\":\"Retry with a PAYMENT-SIGNATURE header built from the PAYMENT-REQUIRED header of this response.\",\"accepts\":[{\"network\":\"eip155:84532\",\"asset\":\"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\"price\":\"0.01\",\"amount\":\"10000\"},{\"network\":\"solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1\",\"asset\":\"4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU\",\"price\":\"0.01\",\"amount\":\"10000\"}],\"pass\":{\"price\":\"1\",\"ttl_seconds\":3600,\"purchase\":{\"method\":\"POST\",\"url\":\"http://x402-local.oto.tools:8090/.well-known/otoroshi/x402/pass\"},\"present_as\":[\"SIGN-IN-WITH-X header (x402 sign-in-with-x extension)\",\"Otoroshi-X402-Pass header (token returned at purchase)\"]}}",
+        "truncated": false
+      },
+      "elapsed_ms": 5,
+      "payment_required": {
+        "raw": "eyJ4NDAyVmVyc2lvbiI6MiwicmVzb3VyY2UiOnsidXJsIjoiaHR0cDovL3g0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAvcmVwb3J0IiwiZGVzY3JpcHRpb24iOiJXaXRuZXNzIGJhY2tlbmQgb2YgeDQwMi1jb25mb3JtYW5jZSIsIm1pbWVUeXBlIjoidGV4dC9tYXJrZG93biIsInNlcnZpY2VOYW1lIjoieDQwMi1sb2NhbCIsInRhZ3MiOlsibWFya2Rvd24iLCJzY3JhcGluZyJdfSwiYWNjZXB0cyI6W3sic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LHsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoic29sYW5hOkV0V1RSQUJaYVlxNmlNZmVZS291UnUxNjZWVTJ4cWExIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjR6TU1DOXNydDVSaTVYMTRHQWdYaGFIaWkzR25QQUVFUllQSmdaSkRuY0RVIiwicGF5VG8iOiIyd0t1cExSOXE2d1hZcHB3OEdyMk52V3hLQlVxbTRQUEpLa1Fmb3hIREJnNCIsIm1heFRpbWVvdXRTZWNvbmRzIjo2MCwiZXh0cmEiOnsiZmVlUGF5ZXIiOiJFd1dxR0U0WkZLTG9mdWVzdG1VNExEZEs3WE0xTjRBTGdkWmNjd1l1Z3dHZCJ9fV0sImVycm9yIjoiaW52YWxpZF94NDAyX3ZlcnNpb24iLCJleHRlbnNpb25zIjp7InBheW1lbnQtaWRlbnRpZmllciI6eyJpbmZvIjp7InJlcXVpcmVkIjpmYWxzZX0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicHJvcGVydGllcyI6eyJyZXF1aXJlZCI6eyJ0eXBlIjoiYm9vbGVhbiJ9LCJpZCI6eyJ0eXBlIjoic3RyaW5nIiwibWluTGVuZ3RoIjoxNiwibWF4TGVuZ3RoIjoxMjh9fSwicmVxdWlyZWQiOlsicmVxdWlyZWQiXX19LCJzaWduLWluLXdpdGgteCI6eyJpbmZvIjp7ImRvbWFpbiI6Ing0MDItbG9jYWwub3RvLnRvb2xzOjgwOTAiLCJ1cmkiOiJodHRwOi8veDQwMi1sb2NhbC5vdG8udG9vbHM6ODA5MC9yZXBvcnQiLCJ2ZXJzaW9uIjoiMSIsIm5vbmNlIjoiODlmMTc3MjQzZTc4NGY3NmVlMjFmZmJjYWRmMzY1YzYiLCJpc3N1ZWRBdCI6IjIwMjYtMDktMjJUMDc6NTA6NDYuMTQzWiIsImV4cGlyYXRpb25UaW1lIjoiMjAyNi0wOS0yMlQwNzo1NTo0Ni4xNDNaIiwicmVzb3VyY2VzIjpbImh0dHA6Ly94NDAyLWxvY2FsLm90by50b29sczo4MDkwL3JlcG9ydCJdLCJzdGF0ZW1lbnQiOiJVc2UgbXkgcHJlcGFpZCBzaXRlMm1kIHBhc3MuIn0sInN1cHBvcnRlZENoYWlucyI6W3siY2hhaW5JZCI6ImVpcDE1NTo4NDUzMiIsInR5cGUiOiJlaXAxOTEifV0sInNjaGVtYSI6eyIkc2NoZW1hIjoiaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvZHJhZnQvMjAyMC0xMi9zY2hlbWEiLCJ0eXBlIjoib2JqZWN0IiwicmVxdWlyZWQiOlsiZG9tYWluIiwiYWRkcmVzcyIsInVyaSIsInZlcnNpb24iLCJjaGFpbklkIiwidHlwZSIsIm5vbmNlIiwiaXNzdWVkQXQiLCJzaWduYXR1cmUiXSwicHJvcGVydGllcyI6eyJkb21haW4iOnsidHlwZSI6InN0cmluZyJ9LCJhZGRyZXNzIjp7InR5cGUiOiJzdHJpbmcifSwic3RhdGVtZW50Ijp7InR5cGUiOiJzdHJpbmcifSwidXJpIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifSwidmVyc2lvbiI6eyJ0eXBlIjoic3RyaW5nIn0sImNoYWluSWQiOnsidHlwZSI6InN0cmluZyJ9LCJ0eXBlIjp7InR5cGUiOiJzdHJpbmcifSwibm9uY2UiOnsidHlwZSI6InN0cmluZyJ9LCJpc3N1ZWRBdCI6eyJ0eXBlIjoic3RyaW5nIiwiZm9ybWF0IjoiZGF0ZS10aW1lIn0sImV4cGlyYXRpb25UaW1lIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwibm90QmVmb3JlIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJkYXRlLXRpbWUifSwicmVxdWVzdElkIjp7InR5cGUiOiJzdHJpbmcifSwicmVzb3VyY2VzIjp7InR5cGUiOiJhcnJheSIsIml0ZW1zIjp7InR5cGUiOiJzdHJpbmciLCJmb3JtYXQiOiJ1cmkifX0sInNpZ25hdHVyZSI6eyJ0eXBlIjoic3RyaW5nIn19fX0sImJhemFhciI6eyJpbmZvIjp7ImlucHV0Ijp7InR5cGUiOiJodHRwIiwibWV0aG9kIjoiR0VUIiwicXVlcnlQYXJhbXMiOnsiZm9ybWF0IjoibWQifX0sIm91dHB1dCI6eyJ0eXBlIjoidGV4dCJ9fSwic2NoZW1hIjp7IiRzY2hlbWEiOiJodHRwczovL2pzb24tc2NoZW1hLm9yZy9kcmFmdC8yMDIwLTEyL3NjaGVtYSIsInR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7ImlucHV0Ijp7InR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InR5cGUiOnsidHlwZSI6InN0cmluZyIsImNvbnN0IjoiaHR0cCJ9LCJoZWFkZXJzIjp7InR5cGUiOiJvYmplY3QiLCJhZGRpdGlvbmFsUHJvcGVydGllcyI6eyJ0eXBlIjoic3RyaW5nIn19LCJtZXRob2QiOnsidHlwZSI6InN0cmluZyIsImVudW0iOlsiR0VUIiwiSEVBRCIsIkRFTEVURSJdfSwicXVlcnlQYXJhbXMiOnsidHlwZSI6Im9iamVjdCIsInByb3BlcnRpZXMiOnsiZm9ybWF0Ijp7InR5cGUiOiJzdHJpbmcifX0sInJlcXVpcmVkIjpbImZvcm1hdCJdfX0sInJlcXVpcmVkIjpbInR5cGUiLCJtZXRob2QiXSwiYWRkaXRpb25hbFByb3BlcnRpZXMiOmZhbHNlfSwib3V0cHV0Ijp7InR5cGUiOiJvYmplY3QiLCJwcm9wZXJ0aWVzIjp7InR5cGUiOnsidHlwZSI6InN0cmluZyJ9LCJleGFtcGxlIjp7fX0sInJlcXVpcmVkIjpbInR5cGUiXX19LCJyZXF1aXJlZCI6WyJpbnB1dCJdfX19fQ==",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "present"
+        },
+        "json": {
+          "x402Version": 2,
+          "resource": {
+            "url": "http://x402-local.oto.tools:8090/report",
+            "description": "Witness backend of x402-conformance",
+            "mimeType": "text/markdown",
+            "serviceName": "x402-local",
+            "tags": [
+              "markdown",
+              "scraping"
+            ]
+          },
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:84532",
+              "amount": "10000",
+              "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+              "payTo": "0x209693Bc6afc0C5328bA36FaF03C514EF312287C",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "name": "USDC",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+              "amount": "10000",
+              "asset": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+              "payTo": "2wKupLR9q6wXYppw8Gr2NvWxKBUqm4PPJKkQfoxHDBg4",
+              "maxTimeoutSeconds": 60,
+              "extra": {
+                "feePayer": "EwWqGE4ZFKLofuestmU4LDdK7XM1N4ALgdZccwYugwGd"
+              }
+            }
+          ],
+          "error": "invalid_x402_version",
+          "extensions": {
+            "payment-identifier": {
+              "info": {
+                "required": false
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "required"
+                ]
+              }
+            },
+            "sign-in-with-x": {
+              "info": {
+                "domain": "x402-local.oto.tools:8090",
+                "uri": "http://x402-local.oto.tools:8090/report",
+                "version": "1",
+                "nonce": "89f177243e784f76ee21ffbcadf365c6",
+                "issuedAt": "2026-09-22T07:50:46.143Z",
+                "expirationTime": "2026-09-22T07:55:46.143Z",
+                "resources": [
+                  "http://x402-local.oto.tools:8090/report"
+                ],
+                "statement": "Use my prepaid site2md pass."
+              },
+              "supportedChains": [
+                {
+                  "chainId": "eip155:84532",
+                  "type": "eip191"
+                }
+              ],
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "required": [
+                  "domain",
+                  "address",
+                  "uri",
+                  "version",
+                  "chainId",
+                  "type",
+                  "nonce",
+                  "issuedAt",
+                  "signature"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "statement": {
+                    "type": "string"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "chainId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "nonce": {
+                    "type": "string"
+                  },
+                  "issuedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "expirationTime": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "notBefore": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "bazaar": {
+              "info": {
+                "input": {
+                  "type": "http",
+                  "method": "GET",
+                  "queryParams": {
+                    "format": "md"
+                  }
+                },
+                "output": {
+                  "type": "text"
+                }
+              },
+              "schema": {
+                "$schema": "https://json-schema.org/draft/2020-12/schema",
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "const": "http"
+                      },
+                      "headers": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": [
+                          "GET",
+                          "HEAD",
+                          "DELETE"
+                        ]
+                      },
+                      "queryParams": {
+                        "type": "object",
+                        "properties": {
+                          "format": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "format"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "method"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "output": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "example": {}
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  }
+                },
+                "required": [
+                  "input"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "seq": 9,
+      "label": "well-formed payment with a zero signature",
+      "method": "GET",
+      "url": "http://x402-local.oto.tools:8090/report",
+      "request_headers": {
+        "payment-signature": "eyJ4NDAyVmVyc2lvbiI6MiwiYWNjZXB0ZWQiOnsic2NoZW1lIjoiZXhhY3QiLCJuZXR3b3JrIjoiZWlwMTU1Ojg0NTMyIiwiYW1vdW50IjoiMTAwMDAiLCJhc3NldCI6IjB4MDM2Q2JENTM4NDJjNTQyNjYzNGU3OTI5NTQxZUMyMzE4ZjNkQ0Y3ZSIsInBheVRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwibWF4VGltZW91dFNlY29uZHMiOjYwLCJleHRyYSI6eyJuYW1lIjoiVVNEQyIsInZlcnNpb24iOiIyIn19LCJwYXlsb2FkIjp7InNpZ25hdHVyZSI6IjB4MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsImF1dGhvcml6YXRpb24iOnsiZnJvbSI6IjB4RDNjMjRGNDNFMTA0OEM0OTY5MjM1MTA3MDNBQWY2RjBjQTk1NTEyYSIsInRvIjoiMHgyMDk2OTNCYzZhZmMwQzUzMjhiQTM2RmFGMDNDNTE0RUYzMTIyODdDIiwidmFsdWUiOiIxMDAwMCIsInZhbGlkQWZ0ZXIiOiIxNzkwMDYzMzg2IiwidmFsaWRCZWZvcmUiOiIxNzkwMDYzNzQ2Iiwibm9uY2UiOiIweGRkNGQ4MTJiOTMzNTM2ZjAzMGI1OTQ2YWQyMDY5ZDQyNDU0Y2UxOTJmZDVlMWZiNjcyZWQ2OTUyOTMxNTY3NGYifX19"
+      },
+      "request_body": {
+        "text": "",
+        "truncated": false
+      },
+      "status": 200,
+      "response_headers": {
+        "access-control-allow-credentials": "false",
+        "access-control-allow-headers": "Content-Type, Accept, PAYMENT-SIGNATURE, SIGN-IN-WITH-X, Otoroshi-X402-Pass",
+        "access-control-allow-methods": "GET, POST, OPTIONS",
+        "access-control-allow-origin": "*",
+        "access-control-expose-headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, Otoroshi-X402-Settlement-State, Otoroshi-X402-Pass-Expires-At",
+        "access-control-max-age": "600",
+        "cache-control": "private",
+        "content-length": "56",
+        "content-type": "application/json",
+        "date": "Tue, 22 Sep 2026 07:50:46 GMT",
+        "payment-response": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4RDNjMjRGNDNFMTA0OEM0OTY5MjM1MTA3MDNBQWY2RjBjQTk1NTEyYSJ9"
+      },
+      "body": {
+        "text": "{\"witness\":true,\"seq\":3,\"method\":\"GET\",\"path\":\"/report\"}",
+        "truncated": false
+      },
+      "elapsed_ms": 49,
+      "payment_response": {
+        "raw": "eyJzdWNjZXNzIjp0cnVlLCJ0cmFuc2FjdGlvbiI6IjB4YWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYmFiYWJhYiIsIm5ldHdvcmsiOiJlaXAxNTU6ODQ1MzIiLCJwYXllciI6IjB4RDNjMjRGNDNFMTA0OEM0OTY5MjM1MTA3MDNBQWY2RjBjQTk1NTEyYSJ9",
+        "variant": {
+          "alphabet": "indistinct",
+          "padding": "not-needed"
+        },
+        "json": {
+          "success": true,
+          "transaction": "0xabababababababababababababababababababababababababababababababab",
+          "network": "eip155:84532",
+          "payer": "0xD3c24F43E1048C496923510703AAf6F0cA95512a"
+        }
+      }
+    }
+  ],
+  "summary": {
+    "pass": 28,
+    "fail": 0,
+    "blocked": 1,
+    "warn": 0,
+    "info": 10,
+    "skip": 0,
+    "cannot_assess": 0,
+    "incomplete": [
+      "CORE-054z"
+    ]
+  },
+  "outcome": "conformant",
+  "exit_code": 0
+}

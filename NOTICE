@@ -1,0 +1,9 @@
+x402-checker
+Copyright 2026 davlgd
+
+This product includes software developed by davlgd.
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The x402 specification texts under spec/ are copies of files of the x402 Foundation repository
+(https://github.com/x402-foundation/x402), pinned at the commit named in spec/UPSTREAM_COMMIT and
+included under their own licence; spec/external/ names the origin of the EIP-3009 text.

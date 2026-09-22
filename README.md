@@ -6,9 +6,13 @@ Each finding names the requirement it measures, or the policy it states, and quo
 
 ## Install
 
-Download a binary for macOS, Linux or Windows from the [releases page](https://github.com/davlgd/x402-checker/releases). Each file comes with its SHA-256.
+With [mise](https://mise.jdx.dev), the GitHub backend fetches the release binary for your platform and puts it on your `PATH`:
 
-From source, with Rust 1.98 or later:
+```sh
+mise use -g github:davlgd/x402-checker@0.1.0
+```
+
+The same binaries can be downloaded from the [releases page](https://github.com/davlgd/x402-checker/releases), each with its SHA-256, for macOS, Linux and Windows. The crates are not on crates.io yet; to build from source, with Rust 1.98 or later:
 
 ```sh
 cargo install --locked --git https://github.com/davlgd/x402-checker x402-checker
